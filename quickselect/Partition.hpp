@@ -1,10 +1,8 @@
 #ifndef PARTITION_HPP
 #define PARTITION_HPP
 
-
 #include "../kdtree/Point.hpp"
 #include <vector>
-
 
 
 class Partition {
@@ -48,30 +46,10 @@ public:
 
 
     iter_t hoarePartition(const iter_t& begin, const iter_t& end, const unsigned long& partition_index) {
-        // if (end - begin == 3) {
-        //     this->sort3(begin, begin + 1, end);
-        //
-        //     return begin + 1;
-        // }
-
-
         std::swap(*begin, *(begin + partition_index));
 
         iter_t forward = begin;
         iter_t reverse = end - 1;
-
-        // {
-        //     auto temp = begin;
-        //
-        //     printf("%s:%d\n", __FILE__, __LINE__);
-        //     while (temp != end) {
-        //         printf("\t");
-        //         (*temp)->printCoordinates();
-        //
-        //         ++temp;
-        //     }
-        //
-        // }
 
         while (forward != reverse) {
 
@@ -90,33 +68,15 @@ public:
             std::swap(*forward, *reverse);
         }
 
-        // if (forward == end - 1 && forward == reverse) {
-        //     return forward - 1;
-        // }
-
         if (reverse == end - 1) {
             if (comp_lt(*reverse, *begin, this->dimension)) {
                 std::swap(*begin, *reverse);
 
                 return reverse;
             }
-
-
-
         }
 
         std::swap(*begin, *(reverse - 1));
-
-        // {
-        //     auto temp = begin;
-        //
-        //     printf("%s:%d\n", __FILE__, __LINE__);
-        //     while (temp != end) {
-        //         printf("\t");
-        //         (*temp)->printCoordinates();
-        //         ++temp;
-        //     }
-        // }
 
         return reverse - 1;
     }

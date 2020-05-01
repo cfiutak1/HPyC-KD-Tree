@@ -156,13 +156,6 @@ public:
 
         return this->partitioner.expandPartition(array_begin, middle_gap_begin, pivot, b, array_end);
     }
-
-
-//    iter_t selectMedian(iter_t array_begin, iter_t array_end) {
-//        // printf("%s:%d dimension=%lu distance=%lu\n", __FILE__, __LINE__, this->dimension, array_end - array_begin);
-//
-//        return this->adaptiveQuickselect(array_begin, array_end, std::distance(array_begin, array_end) / 2);
-//    }
 };
 
 #endif
