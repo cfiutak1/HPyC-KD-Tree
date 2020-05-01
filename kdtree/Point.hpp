@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <cstdio>
 #include <cmath>
-#include <cassert>
 
 
 class Point {
@@ -12,7 +11,7 @@ public:
     float* coordinates;
     uint64_t num_dimensions;
 
-    Point() {}
+    Point() = default;
 
     Point(uint64_t num_dimensions) {
         this->coordinates = new float[num_dimensions];
@@ -20,14 +19,13 @@ public:
     }
 
     ~Point() {
-        // printf("Called point destructor\n");
         delete[] this->coordinates;
     }
 
     inline float getCoordinate(uint64_t dimension) const { return this->coordinates[dimension % this->num_dimensions]; }
 
     void printCoordinates() const {
-        for (uint64_t i = 0; i < this->num_dimensions; i++) printf("%lu:%f ", i, *(this->coordinates + i));
+        for (uint64_t i = 0; i < this->num_dimensions; i++) printf("%llu:%f ", i, *(this->coordinates + i));
         printf("\n");
     }
 
@@ -42,34 +40,6 @@ public:
         return distance;
     }
 };
-
-
-class PointDimensionDistanceComparator {
-public:
-    uint64_t dimension;
-
-    PointDimensionDistanceComparator() {}
-    PointDimensionDistanceComparator(uint64_t d) : dimension(d) {}
-
-    bool operator()(Point* p1, Point* p2) {
-        return p1->getCoordinate(dimension) < p2->getCoordinate(dimension);
-    }
-};
-
-
-class PointTotalDistanceComparator {
-private:
-    Point* reference_point;
-
-public:
-    PointTotalDistanceComparator() {}
-    PointTotalDistanceComparator(Point* p) : reference_point(p) {}
-
-    bool operator()(Point* p1, Point* p2) {
-        return this->reference_point->distanceBetween(p1) < this->reference_point->distanceBetween(p2);
-    }
-};
-
 
 inline bool comp_lt(const Point* p1, const Point* p2, const unsigned long& dimension) {
     return p1->getCoordinate(dimension) < p2->getCoordinate(dimension);

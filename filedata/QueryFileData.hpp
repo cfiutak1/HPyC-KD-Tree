@@ -4,19 +4,13 @@
 
 class QueryFileData : public FileData {
 public:
-    uint64_t num_neighbors_to_return = 0;
+    uint64_t num_neighbors = 0;
 
-    QueryFileData() {}
+    QueryFileData() = default;
 
-    QueryFileData(
-        uint64_t file_id,
-        uint64_t num_queries,
-        uint64_t num_dimensions,
-        uint64_t num_neighbors_to_return_in
-    ):
-        FileData(file_id, num_queries, num_dimensions),
-        num_neighbors_to_return(num_neighbors_to_return_in)
-
+    QueryFileData(uint64_t file_id, uint64_t num_queries, uint64_t num_dimensions, uint64_t num_neighbors_in):
+            FileData(file_id, num_queries, num_dimensions),
+            num_neighbors(num_neighbors_in)
     {}
 };
 

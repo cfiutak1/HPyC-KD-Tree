@@ -53,7 +53,7 @@ public:
         this->results_file << this->generateFileID();
         this->results_file << this->query_file_data->num_points;
         this->results_file << this->query_file_data->num_dimensions;
-        this->results_file << this->query_file_data->num_neighbors_to_return;
+        this->results_file << this->query_file_data->num_neighbors;
     }
 
     void generateResultsFile(std::vector<std::vector<KNNQueue*>>& results) {

@@ -25,14 +25,6 @@ public:
         size(end_in - begin_in)
     {}
 
-    // ~StaticThreadSafeQueue() {
-    //     iter_t temp = begin;
-    //
-    //     while (temp != end) {
-    //         delete *temp;
-    //         ++temp;
-    //     }
-    // }
 
     inline iter_t getBegin() const { return this->begin; }
     inline iter_t getEnd() const { return this->end; }
@@ -41,8 +33,6 @@ public:
 
     iter_t dequeue() {
         unsigned long i = task_index++;
-
-        // printf("%s:%d size =%lu i=%lu\n", __FILE__, __LINE__, this->size, i);
 
         if (i >= this->size) return this->end;
 

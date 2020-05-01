@@ -11,7 +11,6 @@
 
 
 void KDTree::buildTreeParallel() {
-    // uint64_t median = this->num_points / 2;
     uint64_t begin = 0;
     uint64_t end = this->points.size();
     this->root = this->buildSubTreeDepthFirst(begin, end, 0, this->num_threads);
@@ -53,7 +52,7 @@ KDNode* KDTree::buildSubTreeDepthFirst(const uint64_t& begin, const uint64_t& en
 
     std::vector<Point*>::iterator front = this->points.begin() + begin;
 
-    uint64_t median = (range) / 2;
+    uint64_t median = range / 2;
     AdaptiveQuickselect selector(this->points, depth % this->num_dimensions);
     selector.adaptiveQuickselect(this->points.begin() + begin, this->points.begin() + end, median);
 
@@ -69,8 +68,6 @@ KDNode* KDTree::buildSubTreeDepthFirst(const uint64_t& begin, const uint64_t& en
     if (allocated_threads > 0) {
         long l_threads = allocated_threads / 2;
         long r_threads = allocated_threads - l_threads - 1;
-
-        // printf("Hi\n");
 
         std::future<KDNode*> right_child_future = std::async(
             &KDTree::buildSubTreeDepthFirst,

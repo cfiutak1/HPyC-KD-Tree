@@ -11,7 +11,8 @@
 class AdaptiveQuickselect {
 private:
     typedef typename std::vector<Point*>::iterator iter_t;
-    static constexpr const long SAMPLING_THRESHOLD = pow(2, 17);
+    // 2^17 - Clang doesn't like pow() in constexprs
+    static constexpr const long SAMPLING_THRESHOLD = 2 << 17;
 
     std::vector<Point*>& array;
     unsigned long dimension = 0;
@@ -30,49 +31,34 @@ public:
 
         while (true) {
             if (nth_item == 0) {
-                // printf("%s:%d\n", __FILE__, __LINE__);
                 iter_t min_element = begin_iter;
 
                 for (auto it = begin_iter + 1; it != end_iter; ++it) {
                     if (comp_lt(*it, *min_element, this->dimension)) min_element = it;
                 }
 
-                // (*min_element)->printCoordinates();
                 return this->partitioner.hoarePartition(begin_iter, end_iter, min_element - begin_iter);
             }
 
             if (std::distance(begin_iter, end_iter) <= 16) {
-                // printf("%s:%d\n", __FILE__, __LINE__);
                 pivot_iter = this->partitioner.hoarePartition(begin_iter, end_iter, nth_item);
-            }
-
-            else if (6 * nth_item <= std::distance(begin_iter, end_iter)) {
+            } else if (6 * nth_item <= std::distance(begin_iter, end_iter)) {
                 pivot_iter = this->medianOfMinima(begin_iter, end_iter, nth_item);
-            }
-
-            else if (6 * nth_item >= 5 * std::distance(begin_iter, end_iter)) {
+            } else if (6 * nth_item >= 5 * std::distance(begin_iter, end_iter)) {
                 pivot_iter = this->medianOfMaxima(begin_iter, end_iter, nth_item);
-            }
-
-            else {
+            } else {
                 pivot_iter = medianOfNinthers(begin_iter, end_iter);
             }
 
             if (std::distance(begin_iter, pivot_iter) == nth_item) {
                 return pivot_iter;
-            }
-
-            else if (std::distance(begin_iter, pivot_iter) > nth_item) {
+            } else if (std::distance(begin_iter, pivot_iter) > nth_item) {
                 end_iter = pivot_iter + 1;
-            }
-
-            else {
+            } else {
                 nth_item = nth_item - std::distance(begin_iter, pivot_iter) - 1;
                 begin_iter = pivot_iter + 1;
             }
         }
-
-        return pivot_iter;
     }
 
     void medianOfExtrema(
@@ -80,8 +66,7 @@ public:
         const iter_t& subarray_end,
         const iter_t& extrema_chunk_begin,
         const iter_t& extrema_chunk_end,
-        const std::function<bool(const Point*, const Point*, const unsigned long&)> comp
-        )
+        const std::function<bool(const Point*, const Point*, const unsigned long&)> comp)
     {
         long extrema_to_compute = std::distance(extrema_chunk_begin, extrema_chunk_end);
         long chunk_size = std::distance(subarray_begin, subarray_end) / extrema_to_compute;
@@ -173,11 +158,11 @@ public:
     }
 
 
-    iter_t selectMedian(iter_t array_begin, iter_t array_end) {
-        // printf("%s:%d dimension=%lu distance=%lu\n", __FILE__, __LINE__, this->dimension, array_end - array_begin);
-
-        return this->adaptiveQuickselect(array_begin, array_end, std::distance(array_begin, array_end) / 2);
-    }
+//    iter_t selectMedian(iter_t array_begin, iter_t array_end) {
+//        // printf("%s:%d dimension=%lu distance=%lu\n", __FILE__, __LINE__, this->dimension, array_end - array_begin);
+//
+//        return this->adaptiveQuickselect(array_begin, array_end, std::distance(array_begin, array_end) / 2);
+//    }
 };
 
 #endif

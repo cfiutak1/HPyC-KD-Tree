@@ -1,6 +1,5 @@
 #include <cstdlib>
 #include <cstdio>
-#include <string>
 #include <map>
 #include <sys/stat.h>
 
@@ -11,11 +10,7 @@
 #include "fileprocessor/TrainingFileProcessor.hpp"
 #include "filewriter/ResultsFileWriter.hpp"
 #include "kdtree/KDTree.hpp"
-// #include "construction_thread_pool/KDTree.hpp"
-#include "kdtree/Point.hpp"
-// #include "threadpool/QueryThreadPool.hpp"
 #include "singlequerysearcher/KNNSingleQuerySearcher.hpp"
-#include "taskmanager/TaskManager.hpp"
 #include "taskmanager/Task.hpp"
 
 #include <iostream>
@@ -112,8 +107,7 @@ int main(int argc, char** argv) {
 
     if (num_threads > 0) {
         for (unsigned long i = 0; i < query_points.size(); ++i) {
-        // printf("%u\n", i);
-            KNNSingleQuerySearcher searcher(tree, *(query_points.begin() + i), query_file_data->num_neighbors_to_return, num_threads);
+            KNNSingleQuerySearcher searcher(tree, *(query_points.begin() + i), query_file_data->num_neighbors, num_threads);
             KNNQueue* results = searcher.nearestNeighborsSearch();
             writer.writeQueryResults(results);
         }
@@ -121,7 +115,7 @@ int main(int argc, char** argv) {
 
     else {
         for (unsigned long i = 0; i < query_points.size(); ++i) {
-            KNNSearcher searcher(tree, query_file_data->num_neighbors_to_return, query_points[i]);
+            KNNSearcher searcher(tree, query_file_data->num_neighbors, query_points[i]);
             KNNQueue* results = searcher.nearestNeighborsSearch();
             writer.writeQueryResults(results);
         } 

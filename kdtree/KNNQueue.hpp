@@ -22,16 +22,13 @@ private:
     bool closerThanFarthestNeighbor(Point* p);
 
 public:
-    KNNQueue() {
-        // printf("%s:%d Default constructor called\n", __FILE__, __LINE__);
-    }
-    KNNQueue(Point* q, uint64_t n) : query_point(q), num_neighbors(n) {
-        // printf("%s:%d Constructor n=%d called\n", __FILE__, __LINE__, n);
-    }
+    KNNQueue() {}
+    KNNQueue(Point* query_point_in, uint64_t num_neighbors_in):
+        query_point(query_point_in),
+        num_neighbors(num_neighbors_in)
+    {}
 
-    ~KNNQueue() {
-        // printf("%s:%d Destructor called\n", __FILE__, __LINE__);
-    }
+    ~KNNQueue() {}
 
 
     std::vector<Neighbor> getNeighbors() { return this->c; }
