@@ -5,7 +5,6 @@
 #include "FrontierNodeQueue.hpp"
 #include "../kdtree/KNNQueue.hpp"
 
-// class KNNSingleQuerySearcher;
 
 class SingleQueryWorker {
 private:

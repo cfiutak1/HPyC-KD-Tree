@@ -16,7 +16,6 @@ void KNNSingleQuerySearcher::scheduleWorkers() {
     futures.resize(this->num_threads);
 
     for (unsigned int i = 0; i < this->num_threads; i++) {
-        // printf("%s:%d Starting worker %d\n", __FILE__, __LINE__, i);
         SingleQueryWorker* worker = new SingleQueryWorker(this);
         worker->id = i;
         this->workers.push_back(worker);
@@ -26,9 +25,5 @@ void KNNSingleQuerySearcher::scheduleWorkers() {
 
 
 void KNNSingleQuerySearcher::waitUntilComplete() {
-    while (!this->completed) {
-        // printf("%s:%d - %u < %u\n", __FILE__, __LINE__, this->completed_threads.load(), this->num_threads);
-
-        continue;
-    }
+    while (!this->completed) { continue; }
 }

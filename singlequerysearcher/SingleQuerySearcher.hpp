@@ -14,7 +14,6 @@ private:
     uint64_t num_neighbors_to_return;
     Point* query_point;
     KNNQueue* queue;
-    // unsigned int prune_count = 0;
 
 public:
     SingleQuerySearcher(KDTree* tree_in, uint64_t num_neighbors_to_return_in, Point* query_point_in):

@@ -14,7 +14,6 @@ class SingleQueryWorker;
 class KNNSingleQuerySearcher {
 public:
     std::vector<SingleQueryWorker*> workers;
-    std::atomic<long> potential_leaves_to_visit = 0;
     std::atomic<unsigned int> completed_threads = 0;
     std::atomic<unsigned int> active_threads = 0;
     KDTree* tree;
@@ -24,7 +23,6 @@ public:
     unsigned int num_threads = 0;
     KNNQueue* nearest_neighbors;
     FrontierNodeQueue* frontier_node_queue;
-    std::atomic<unsigned int> pruned_nodes = 0;
     bool completed = false;
 
     KNNSingleQuerySearcher(KDTree* tree_in, Point* query_point_in, uint64_t num_neighbors_in, unsigned int num_threads_in):
@@ -35,12 +33,10 @@ public:
         num_threads(num_threads_in)
     {
         this->nearest_neighbors = new KNNQueue(query_point_in, num_neighbors_in);
-        this->potential_leaves_to_visit = pow(2, this->tree->getHeight() - 1);
         this->workers.reserve(num_threads_in);
 
         this->frontier_node_queue = new FrontierNodeQueue(this->tree->getRoot());
     }
-
 
     inline void registerCompletedThread() {
         this->completed_threads++;
