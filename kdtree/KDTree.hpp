@@ -19,7 +19,7 @@ private:
     uint64_t num_points = 0;
     uint64_t num_dimensions = 0;
     std::vector<KDNode*>& points;
-    std::vector<AdaptiveQuickselect> selectors;
+    std::vector<AdaptiveQuickselect*> selectors;
 
     unsigned int height = 0;
 
@@ -37,11 +37,15 @@ public:
     {
         this->selectors.resize(num_dimensions);
         for (uint64_t i = 0; i < this->num_dimensions; ++i) {
-            selectors.push_back(AdaptiveQuickselect(i));
+            AdaptiveQuickselect* q = new AdaptiveQuickselect(i);
+            selectors.push_back(q);
         }
     }
 
-    ~KDTree() { this->destructorHelper(this->root); }
+    ~KDTree() {
+        this->destructorHelper(this->root);
+        for (auto q : this->selectors) delete q;
+    }
 
     void destructorHelper(KDNode* n) {
         if (n == nullptr) return;

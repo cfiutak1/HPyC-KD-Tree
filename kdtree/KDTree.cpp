@@ -63,7 +63,7 @@ KDNode* KDTree::buildSubTreeDepthFirst(const uint64_t& begin, const uint64_t& en
 
     uint64_t median = range / 2;
 //    AdaptiveQuickselect selector(depth);
-    this->selectors[depth].adaptiveQuickselect(this->points.begin() + begin, this->points.begin() + end, median);
+    this->selectors[depth]->adaptiveQuickselect(this->points.begin() + begin, this->points.begin() + end, median);
 
     KDNode* value = *(front + median);
 
