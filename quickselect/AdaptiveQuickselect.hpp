@@ -14,14 +14,14 @@ private:
     // 2^17 - Clang doesn't like pow() in constexprs
     static constexpr const long SAMPLING_THRESHOLD = 1 << 17;
 
-    std::vector<KDNode*>& array;
+//    std::vector<KDNode*>& array;
     unsigned long dimension = 0;
 
     Partition partitioner;
 
 public:
-    AdaptiveQuickselect(std::vector<KDNode*>& array_in, unsigned long dimension_in):
-        array(array_in),
+    AdaptiveQuickselect(unsigned long dimension_in):
+//        array(array_in),
         dimension(dimension_in),
         partitioner(dimension_in)
     {}
