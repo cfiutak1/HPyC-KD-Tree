@@ -35,7 +35,7 @@ public:
         points(points_in),
         height(std::ceil(log2(num_points)))
     {
-        this->selectors.resize(num_dimensions);
+        this->selectors.reserve(num_dimensions);
         for (uint64_t i = 0; i < this->num_dimensions; ++i) {
             AdaptiveQuickselect* q = new AdaptiveQuickselect(i);
             selectors.push_back(q);

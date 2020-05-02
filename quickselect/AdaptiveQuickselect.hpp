@@ -17,16 +17,18 @@ private:
 //    std::vector<KDNode*>& array;
     unsigned long dimension = 0;
 
-    Partition partitioner;
+    Partition* partitioner;
 
 public:
-    AdaptiveQuickselect() = default;
+    //AdaptiveQuickselect() = default;
 
     AdaptiveQuickselect(unsigned long dimension_in):
 //        array(array_in),
-        dimension(dimension_in),
-        partitioner(dimension_in)
-    {}
+        dimension(dimension_in) 
+	{
+		this->partitioner = new Partition(dimension_in);
+	}
+
 
     iter_t adaptiveQuickselect(iter_t begin_iter, iter_t end_iter, long nth_item) {
         iter_t pivot_iter;
@@ -39,11 +41,11 @@ public:
                     if (comp_lt(*it, *min_element, this->dimension)) min_element = it;
                 }
 
-                return this->partitioner.hoarePartition(begin_iter, end_iter, min_element - begin_iter);
+                return this->partitioner->hoarePartition(begin_iter, end_iter, min_element - begin_iter);
             }
 
             if (std::distance(begin_iter, end_iter) <= 16) {
-                pivot_iter = this->partitioner.hoarePartition(begin_iter, end_iter, nth_item);
+                pivot_iter = this->partitioner->hoarePartition(begin_iter, end_iter, nth_item);
             }
 
             else if (6 * nth_item <= std::distance(begin_iter, end_iter)) {
@@ -114,7 +116,7 @@ public:
         iter_t b = minima_chunk_end - 1;
 
 
-        return this->partitioner.expandPartition(array_begin, array_begin, pivot, b, array_end);
+        return this->partitioner->expandPartition(array_begin, array_begin, pivot, b, array_end);
     }
 
 
@@ -136,7 +138,7 @@ public:
         iter_t pivot = array_begin + partition_index;
         iter_t b = array_end - 1;
 
-        return this->partitioner.expandPartition(array_begin, maxima_chunk_begin, pivot, b, array_end);
+        return this->partitioner->expandPartition(array_begin, maxima_chunk_begin, pivot, b, array_end);
     }
 
     iter_t medianOfNinthers(const iter_t& array_begin, const iter_t& array_end) {
@@ -144,7 +146,7 @@ public:
         long sampling_constant = (array_length > SAMPLING_THRESHOLD) ? 64 : 1024;
         long subsample_size = (array_length / sampling_constant) / 3;
 
-        if (subsample_size < 3) return this->partitioner.hoarePartition(array_begin, array_end, array_length / 2);
+        if (subsample_size < 3) return this->partitioner->hoarePartition(array_begin, array_end, array_length / 2);
 
         long gap_size = (array_length - (3 * subsample_size)) / 4;
 
@@ -166,7 +168,7 @@ public:
         iter_t pivot = middle_gap_begin + (subsample_size / 2);
         iter_t b = middle_gap_begin + subsample_size - 1;
 
-        return this->partitioner.expandPartition(array_begin, middle_gap_begin, pivot, b, array_end);
+        return this->partitioner->expandPartition(array_begin, middle_gap_begin, pivot, b, array_end);
     }
 };
 

@@ -28,7 +28,7 @@ run: all
 	./program2
 
 memcheck: all
-	valgrind $(VFLAGS) ./program2
+	valgrind $(VFLAGS) ./program2 2 data/data_2024712.dat data/query_2024722.dat results.out
 
 clean:
 	rm *.o program2

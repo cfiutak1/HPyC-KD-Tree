@@ -110,7 +110,7 @@ int main(int argc, char** argv) {
 
 
     delete tree;
-    for (auto p : training_points) delete p;
+    //for (auto p : training_points) delete p;
     for (auto p : query_points) delete p;
 
     delete training_file_data;

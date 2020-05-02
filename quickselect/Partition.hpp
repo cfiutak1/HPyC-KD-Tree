@@ -29,11 +29,14 @@ private:
     }
 
 public:
-    Partition() = default;
-    Partition(unsigned long dimension_in): dimension(dimension_in) {}
+    //Partition() = default;
+    Partition(unsigned long dimension_in): dimension(dimension_in) {
+    	//printf("%s:%d %lu\n", __FILE__, __LINE__, dimension_in);
+    }
 
 
     iter_t hoarePartition(const iter_t& begin, const iter_t& end, const unsigned long& partition_index) {
+//	    printf("%s:%d len=%lu pi=%lu\n", __FILE__, __LINE__, end - begin, partition_index);
         std::swap(*begin, *(begin + partition_index));
 
         iter_t forward = begin + 1;
@@ -43,6 +46,7 @@ public:
 
             while (true) {
                 if (std::distance(begin, forward) > std::distance(begin, reverse)) goto end_loop;
+//		printf("%s:%d dim=%lu\n", __FILE__, __LINE__, this->dimension);
                 if (comp_gte( *forward, *begin,this->dimension)) break;
                 ++forward;
             }

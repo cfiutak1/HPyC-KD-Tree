@@ -20,7 +20,7 @@ public:
     }
 
     ~KDNode() {
-        delete this->coordinates;
+        delete[] this->coordinates;
     }
 
     inline float getCoordinate(uint64_t dimension) const {
