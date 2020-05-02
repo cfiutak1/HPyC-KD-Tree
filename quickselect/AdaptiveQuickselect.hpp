@@ -12,7 +12,7 @@ class AdaptiveQuickselect {
 private:
     typedef typename std::vector<Point*>::iterator iter_t;
     // 2^17 - Clang doesn't like pow() in constexprs
-    static constexpr const long SAMPLING_THRESHOLD = 2 << 17;
+    static constexpr const long SAMPLING_THRESHOLD = 1 << 17;
 
     std::vector<Point*>& array;
     unsigned long dimension = 0;
@@ -30,7 +30,6 @@ public:
         iter_t pivot_iter;
 
         while (true) {
-//            printf("%s:%d %ld\n", __FILE__, __LINE__, nth_item);
             if (nth_item == 0) {
                 iter_t min_element = begin_iter;
 
