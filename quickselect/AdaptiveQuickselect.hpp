@@ -30,6 +30,7 @@ public:
         iter_t pivot_iter;
 
         while (true) {
+//            printf("%s:%d %ld\n", __FILE__, __LINE__, nth_item);
             if (nth_item == 0) {
                 iter_t min_element = begin_iter;
 
@@ -42,19 +43,29 @@ public:
 
             if (std::distance(begin_iter, end_iter) <= 16) {
                 pivot_iter = this->partitioner.hoarePartition(begin_iter, end_iter, nth_item);
-            } else if (6 * nth_item <= std::distance(begin_iter, end_iter)) {
+            }
+
+            else if (6 * nth_item <= std::distance(begin_iter, end_iter)) {
                 pivot_iter = this->medianOfMinima(begin_iter, end_iter, nth_item);
-            } else if (6 * nth_item >= 5 * std::distance(begin_iter, end_iter)) {
+            }
+
+            else if (6 * nth_item >= 5 * std::distance(begin_iter, end_iter)) {
                 pivot_iter = this->medianOfMaxima(begin_iter, end_iter, nth_item);
-            } else {
+            }
+
+            else {
                 pivot_iter = medianOfNinthers(begin_iter, end_iter);
             }
 
             if (std::distance(begin_iter, pivot_iter) == nth_item) {
                 return pivot_iter;
-            } else if (std::distance(begin_iter, pivot_iter) > nth_item) {
+            }
+
+            else if (std::distance(begin_iter, pivot_iter) > nth_item) {
                 end_iter = pivot_iter + 1;
-            } else {
+            }
+
+            else {
                 nth_item = nth_item - std::distance(begin_iter, pivot_iter) - 1;
                 begin_iter = pivot_iter + 1;
             }
