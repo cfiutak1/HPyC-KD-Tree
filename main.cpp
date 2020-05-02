@@ -94,6 +94,7 @@ int main(int argc, char** argv) {
          QueryTask task(tree, query_file_data->num_neighbors);
 
          std::vector<std::vector<KNNQueue*>> results = query_task_manager.completeTasks<QueryTask>(task);
+         writer.generateResultsFile(results);
     }
 
     else {
