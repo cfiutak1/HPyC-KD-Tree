@@ -29,6 +29,7 @@ private:
     }
 
 public:
+    Partition() = default;
     Partition(unsigned long dimension_in): dimension(dimension_in) {}
 
 

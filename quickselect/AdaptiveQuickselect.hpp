@@ -20,6 +20,8 @@ private:
     Partition partitioner;
 
 public:
+    AdaptiveQuickselect() = default;
+
     AdaptiveQuickselect(unsigned long dimension_in):
 //        array(array_in),
         dimension(dimension_in),
