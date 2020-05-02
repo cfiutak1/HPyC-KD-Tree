@@ -15,20 +15,20 @@ public:
 };
 
 
-//class QueryTask : public Task<KNNQueue, Point> {
-//public:
-//    KDTree* tree;
-//    const uint64_t& num_neighbors;
-//
-//    QueryTask(KDTree* tree_in, const uint64_t& num_neighbors_in): tree(tree_in), num_neighbors(num_neighbors_in) {}
-//
-//    KNNQueue* operator()(Point* query_point) {
-//        KNNSearcher searcher(this->tree, this->num_neighbors, query_point);
+class QueryTask : public Task<KNNQueue, Point> {
+public:
+    KDTree* tree;
+    const uint64_t& num_neighbors;
+
+    QueryTask(KDTree* tree_in, const uint64_t& num_neighbors_in): tree(tree_in), num_neighbors(num_neighbors_in) {}
+
+    KNNQueue* operator()(Point* query_point) {
+        KNNSearcher searcher(this->tree, this->num_neighbors, query_point);
 //        assert(tree != nullptr);
 //        assert(query_point != nullptr);
-//        return searcher.nearestNeighborsSearch();
-//    }
-//
-//};
+        return searcher.nearestNeighborsSearch();
+    }
+
+};
 
 #endif
