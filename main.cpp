@@ -12,6 +12,7 @@
 #include "kdtree/KDTree.hpp"
 #include "singlequerysearcher/KNNSingleQuerySearcher.hpp"
 #include "taskmanager/Task.hpp"
+#include "taskmanager/TaskManager.hpp"
 
 #include <iostream>
 
@@ -106,11 +107,15 @@ int main(int argc, char** argv) {
     ResultsFileWriter writer(result_file_name, training_file_data, query_file_data);
 
     if (num_threads > 0) {
-        for (unsigned long i = 0; i < query_points.size(); ++i) {
-            KNNSingleQuerySearcher searcher(tree, *(query_points.begin() + i), query_file_data->num_neighbors, num_threads);
-            KNNQueue* results = searcher.nearestNeighborsSearch();
-            writer.writeQueryResults(results);
-        }
+//        for (unsigned long i = 0; i < query_points.size(); ++i) {
+//            KNNSingleQuerySearcher searcher(tree, *(query_points.begin() + i), query_file_data->num_neighbors, num_threads);
+//            KNNQueue* results = searcher.nearestNeighborsSearch();
+//            writer.writeQueryResults(results);
+//        }
+         TaskManager<Point, KNNQueue> query_task_manager(query_points, num_threads);
+         QueryTask task(tree, query_file_data->num_neighbors);
+
+         std::vector<std::vector<KNNQueue*>> results = query_task_manager.completeTasks<QueryTask>(task);
     }
 
     else {
