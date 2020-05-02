@@ -5,7 +5,7 @@
 #include <fstream>
 #include <vector>
 
-#include "../kdtree/Point.hpp"
+#include "../kdtree/KDNode.hpp"
 
 
 class FileProcessor {
@@ -23,21 +23,21 @@ public:
         if (this->input_stream) this->input_stream.close();
     }
 
-    std::vector<Point*> readPoints() {
+    std::vector<KDNode*> readPoints() {
         uint64_t num_points = this->file_data->num_points;
-        std::vector<Point*> points;
+        std::vector<KDNode*> points;
         points.reserve(num_points);
 
         for (uint64_t i = 0; i < num_points; i++) {
             if (this->input_stream) {
-                Point* p = new Point(this->file_data->num_dimensions);
+                KDNode* n = new KDNode(this->file_data->num_dimensions);
 
                 this->input_stream.read(
-                    (char*) p->coordinates,
+                    (char*) n->coordinates,
                     this->file_data->num_dimensions * sizeof(float)
                 );
 
-                points.push_back(p);
+                points.push_back(n);
             }
         }
 

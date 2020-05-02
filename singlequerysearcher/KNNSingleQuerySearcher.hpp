@@ -18,14 +18,14 @@ public:
     std::atomic<unsigned int> active_threads = 0;
     KDTree* tree;
     uint64_t num_dimensions = 0;
-    Point* query_point;
+    KDNode* query_point;
     uint64_t num_neighbors = 0;
     unsigned int num_threads = 0;
     KNNQueue* nearest_neighbors;
     FrontierNodeQueue* frontier_node_queue;
     bool completed = false;
 
-    KNNSingleQuerySearcher(KDTree* tree_in, Point* query_point_in, uint64_t num_neighbors_in, unsigned int num_threads_in):
+    KNNSingleQuerySearcher(KDTree* tree_in, KDNode* query_point_in, uint64_t num_neighbors_in, unsigned int num_threads_in):
         tree(tree_in),
         num_dimensions(tree_in->getNumDimensions()),
         query_point(query_point_in),

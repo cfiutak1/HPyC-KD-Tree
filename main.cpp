@@ -24,28 +24,6 @@ inline bool file_exists (const std::string& name) {
 }
 
 
-int COUNT = 10;
-
-void print2DUtil(KDNode* root, int space)
-{
-    if (root == nullptr) return;
-
-    space += COUNT;
-
-    print2DUtil(root->right_child, space);
-
-    std::cout << std::endl;
-
-    for (int i = COUNT; i < space; i++) std::cout << " ";
-
-    for (uint64_t i = 0; i < root->point->num_dimensions; i++) {
-        std::cout << root->point->getCoordinate(i) << ",";
-    }
-
-    print2DUtil(root->left_child, space);
-    std::cout << std::endl;
-}
-
 int main(int argc, char** argv) {
     if (argc != 5) {
         printf("Error: Invalid number of arguments (got %d, expected 5)\n", argc);
@@ -86,7 +64,7 @@ int main(int argc, char** argv) {
     auto tree_start = std::chrono::steady_clock::now();
     TrainingFileProcessor training_file_processor(training_file_name);
     TrainingFileData* training_file_data = training_file_processor.readTrainingFileHeader();
-    std::vector<Point*> training_points = training_file_processor.readPoints();
+    std::vector<KDNode*> training_points = training_file_processor.readPoints();
 
 
 
@@ -102,7 +80,7 @@ int main(int argc, char** argv) {
 
     QueryFileProcessor query_file_processor(query_file_name);
     QueryFileData* query_file_data = query_file_processor.readQueryFileHeader();
-    std::vector<Point*> query_points = query_file_processor.readPoints();
+    std::vector<KDNode*> query_points = query_file_processor.readPoints();
 
     ResultsFileWriter writer(result_file_name, training_file_data, query_file_data);
 
@@ -112,7 +90,7 @@ int main(int argc, char** argv) {
 //            KNNQueue* results = searcher.nearestNeighborsSearch();
 //            writer.writeQueryResults(results);
 //        }
-         TaskManager<Point, KNNQueue> query_task_manager(query_points, num_threads);
+         TaskManager<KDNode, KNNQueue> query_task_manager(query_points, num_threads);
          QueryTask task(tree, query_file_data->num_neighbors);
 
          std::vector<std::vector<KNNQueue*>> results = query_task_manager.completeTasks<QueryTask>(task);

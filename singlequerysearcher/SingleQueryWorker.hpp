@@ -3,7 +3,9 @@
 
 #include "KNNSingleQuerySearcher.hpp"
 #include "FrontierNodeQueue.hpp"
+#include "../kdtree/KDNode.hpp"
 #include "../kdtree/KNNQueue.hpp"
+
 
 
 class SingleQueryWorker {

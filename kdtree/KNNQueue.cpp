@@ -1,12 +1,12 @@
 #include "KNNQueue.hpp"
 
 
-bool KNNQueue::closerThanFarthestNeighbor(Point* p) {
+bool KNNQueue::closerThanFarthestNeighbor(KDNode* p) {
     return this->query_point->distanceBetween(p) < this->top().distance_from_queried_point;
 }
 
 
-bool KNNQueue::registerAsNeighborIfCloser(Point* potential_neighbor) {
+bool KNNQueue::registerAsNeighborIfCloser(KDNode* potential_neighbor) {
     if (!this->isFull()) {
         double distance = this->query_point->distanceBetween(potential_neighbor);
 
@@ -31,7 +31,7 @@ bool KNNQueue::registerAsNeighborIfCloser(Point* potential_neighbor) {
 }
 
 
-bool KNNQueue::registerAsNeighborIfCloserTS(Point* potential_neighbor) {
+bool KNNQueue::registerAsNeighborIfCloserTS(KDNode* potential_neighbor) {
     if (!this->isFull()) {
         std::lock_guard<std::mutex> lock(this->mtx);
 

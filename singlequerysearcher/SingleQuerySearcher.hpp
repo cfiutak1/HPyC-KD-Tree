@@ -2,7 +2,7 @@
 #define SINGLEQUERYSEARCHER_HPP
 
 #include <cstdint>
-#include "../kdtree/Point.hpp"
+#include "../kdtree/KDNode.hpp"
 #include "../kdtree/KDTree.hpp"
 #include "../kdtree/KNNQueue.hpp"
 
@@ -12,11 +12,11 @@ private:
     KDTree* tree;
     uint64_t num_dimensions;
     uint64_t num_neighbors_to_return;
-    Point* query_point;
+    KDNode* query_point;
     KNNQueue* queue;
 
 public:
-    SingleQuerySearcher(KDTree* tree_in, uint64_t num_neighbors_to_return_in, Point* query_point_in):
+    SingleQuerySearcher(KDTree* tree_in, uint64_t num_neighbors_to_return_in, KDNode* query_point_in):
         tree(tree_in),
         num_dimensions(tree_in->getNumDimensions()),
         num_neighbors_to_return(num_neighbors_to_return_in),

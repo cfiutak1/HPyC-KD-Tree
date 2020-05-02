@@ -3,7 +3,7 @@
 
 #include "../filedata/TrainingFileData.hpp"
 #include "../quickselect/AdaptiveQuickselect.hpp"
-#include "Point.hpp"
+//#include "Point.hpp"
 #include "KDNode.hpp"
 
 #include <cstdint>
@@ -18,7 +18,7 @@ private:
     unsigned int num_threads = 0;
     uint64_t num_points = 0;
     uint64_t num_dimensions = 0;
-    std::vector<Point*>& points;
+    std::vector<KDNode*>& points;
 
     unsigned int height = 0;
 
@@ -26,7 +26,7 @@ public:
     KDTree(
         unsigned int num_threads_in,
         TrainingFileData* training_file_data_in,
-        std::vector<Point*>& points_in
+        std::vector<KDNode*>& points_in
     ):
         num_threads(num_threads_in),
         num_points(training_file_data_in->num_points),

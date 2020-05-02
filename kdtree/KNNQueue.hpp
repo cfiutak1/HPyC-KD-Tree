@@ -2,7 +2,8 @@
 #define KNNQUEUE_HPP
 
 #include "Neighbor.hpp"
-#include "Point.hpp"
+//#include "Point.hpp"
+#include "KDNode.hpp"
 
 #include <mutex>
 #include <queue>
@@ -14,16 +15,16 @@ class KNNQueue : public std::priority_queue<Neighbor, std::vector<Neighbor>, Nei
 private:
     typedef std::priority_queue<Neighbor, std::vector<Neighbor>, NeighborComparator> super;
 
-    Point* query_point;
+    KDNode* query_point;
     uint64_t num_neighbors;
 
     std::mutex mtx;
 
-    bool closerThanFarthestNeighbor(Point* p);
+    bool closerThanFarthestNeighbor(KDNode* p);
 
 public:
     KNNQueue() {}
-    KNNQueue(Point* query_point_in, uint64_t num_neighbors_in):
+    KNNQueue(KDNode* query_point_in, uint64_t num_neighbors_in):
         query_point(query_point_in),
         num_neighbors(num_neighbors_in)
     {}
@@ -35,8 +36,8 @@ public:
 
     inline bool isFull() { return super::size() == this->num_neighbors; }
 
-    bool registerAsNeighborIfCloser(Point* potential_neighbor);
-    bool registerAsNeighborIfCloserTS(Point* potential_neighbor);
+    bool registerAsNeighborIfCloser(KDNode* potential_neighbor);
+    bool registerAsNeighborIfCloserTS(KDNode* potential_neighbor);
 };
 
 #endif

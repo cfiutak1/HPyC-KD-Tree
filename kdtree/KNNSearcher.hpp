@@ -10,11 +10,11 @@ private:
     KDTree* tree;
     uint64_t num_dimensions;
     uint64_t num_neighbors_to_return;
-    Point* query_point;
+    KDNode* query_point;
     KNNQueue* queue;
 
 public:
-    KNNSearcher(KDTree* tree_in, uint64_t num_neighbors_to_return_in, Point* query_point_in):
+    KNNSearcher(KDTree* tree_in, uint64_t num_neighbors_to_return_in, KDNode* query_point_in):
         tree(tree_in),
         num_dimensions(tree_in->getNumDimensions()),
         num_neighbors_to_return(num_neighbors_to_return_in),

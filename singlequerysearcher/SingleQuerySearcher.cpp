@@ -8,13 +8,13 @@ KNNQueue* SingleQuerySearcher::nearestNeighborsSearch() {
 }
 
 
-void KNNSearcher::nearestNeighborsSearchHelper(KDNode* traverser, uint64_t depth) {
+void SingleQuerySearcher::nearestNeighborsSearchHelper(KDNode* traverser, uint64_t depth) {
     if (traverser == nullptr) return;
 
-    this->queue->registerAsNeighborIfCloser(traverser->point);
+    this->queue->registerAsNeighborIfCloser(traverser);
 
     float query_at_current_dimension = this->query_point->getCoordinate(depth);
-    float traverser_at_current_dimension = traverser->point->getCoordinate(depth);
+    float traverser_at_current_dimension = traverser->getCoordinate(depth);
     float distance_from_query_at_dimension = pow(traverser_at_current_dimension - query_at_current_dimension, 2);
 
     if (query_at_current_dimension < traverser_at_current_dimension) {

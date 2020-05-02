@@ -1,14 +1,14 @@
 #ifndef PARTITION_HPP
 #define PARTITION_HPP
 
-#include "../kdtree/Point.hpp"
+#include "../kdtree/KDNode.hpp"
 #include <vector>
-#include <cassert>
+//#include <cassert>
 
 
 class Partition {
 private:
-    typedef std::vector<Point*>::iterator iter_t;
+    typedef std::vector<KDNode*>::iterator iter_t;
 
     unsigned long dimension = 0;
 
@@ -76,7 +76,7 @@ public:
         iter_t right_subarray_traverser = array_end - 1;
 
         // this being a pointer may cause problems
-        Point* pivot_value = *pivot;
+        KDNode* pivot_value = *pivot;
 
         while (left_subarray_traverser != left_subarray_end && right_subarray_traverser != (right_subarray_begin)) {
             if (comp_gt(*left_subarray_traverser, pivot_value, this->dimension) && comp_lt(*right_subarray_traverser, pivot_value, this->dimension)) {
