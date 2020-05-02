@@ -33,47 +33,18 @@ public:
 
 
     iter_t hoarePartition(const iter_t& begin, const iter_t& end, const unsigned long& partition_index) {
-//        printf("%s:%d len=%ld pi=%lu\n", __FILE__, __LINE__, std::distance(begin, end), partition_index);
-//        {
-//            iter_t temp = begin;
-//            printf("%s:%d ", __FILE__, __LINE__);
-//            while (temp != end) {
-//                printf("%f ", (*temp)->coordinates[this->dimension]);
-//                ++temp;
-//            }
-//
-//            printf("\n");
-//        }
         std::swap(*begin, *(begin + partition_index));
-//        printf("%s:%d\n", __FILE__, __LINE__);
-
-//        assert(begin != end);
-
 
         iter_t forward = begin + 1;
         iter_t reverse = end - 1;
 
-
-
         while (true) {
-//            {
-//                iter_t temp = begin;
-////                printf("%s:%d ", __FILE__, __LINE__);
-//                while (temp != end) {
-//                    printf("%f ", (*temp)->coordinates[this->dimension]);
-//                    ++temp;
-//                }
-//
-//                printf("\n");
-//            }
-//            printf("%s:%d\n", __FILE__, __LINE__);
+
             while (true) {
-//                printf("%s:%d %ld, %ld\n", __FILE__, __LINE__, std::distance(begin, forward), std::distance(begin, reverse));
                 if (std::distance(begin, forward) > std::distance(begin, reverse)) goto end_loop;
                 if (comp_gte( *forward, *begin,this->dimension)) break;
                 ++forward;
             }
-//            printf("%s:%d\n", __FILE__, __LINE__);
 
             while (comp_lt(*begin, *reverse, this->dimension)) --reverse;
 
@@ -83,44 +54,12 @@ public:
 
             std::swap(*forward, *reverse);
 
-//            {
-//                iter_t temp = begin;
-//                printf("%s:%d ", __FILE__, __LINE__);
-//                while (temp != end) {
-//                    printf("%f ", (*temp)->coordinates[this->dimension]);
-//                    ++temp;
-//                }
-//
-//                printf("\n");
-//            }
             ++forward;
             --reverse;
         }
 
-
         end_loop:
-//            {
-//                iter_t temp = begin;
-//                printf("%s:%d ", __FILE__, __LINE__);
-//                while (temp != end) {
-//                    printf("%f ", (*temp)->coordinates[this->dimension]);
-//                    ++temp;
-//                }
-//
-//                printf("\n");
-//            }
             std::swap(*begin, *(forward- 1));
-
-//            {
-//                iter_t temp = begin;
-//                printf("%s:%d ", __FILE__, __LINE__);
-//                while (temp != end) {
-//                    printf("%f ", (*temp)->coordinates[this->dimension]);
-//                    ++temp;
-//                }
-//
-//                printf("\n");
-//            }
 
             return forward - 1;
     }
