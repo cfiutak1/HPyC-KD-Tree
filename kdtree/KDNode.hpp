@@ -1,9 +1,10 @@
 #ifndef KDNODE_HPP
 #define KDNODE_HPP
 
-//#include "KDNode.hpp"
 #include <cmath>
 #include <cstdint>
+#include <cstdio>
+
 
 class KDNode {
 public:
@@ -40,6 +41,12 @@ public:
         }
 
         return distance;
+    }
+
+
+    void printCoordinates() const {
+        for (uint64_t i = 0; i < this->num_dimensions; i++) printf("%lu:%f ", i, *(this->coordinates + i));
+        printf("\n");
     }
 };
 

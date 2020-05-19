@@ -3,15 +3,15 @@
 
 #include "../kdtree/KDTree.hpp"
 #include "../kdtree/KNNQueue.hpp"
-//#include "../kdtree/Point.hpp"
-#include "../kdtree/KNNSearcher.hpp"
+//#include "../kdtree/KNNSearcher.hpp"
+#include "../kdtree/KNNSearch.hpp"
 
-#include <cassert>
 
+// TODO this order is horrible design
 template <typename ReturnType, typename ArgType>
 class Task {
 public:
-    ReturnType* operator()(ArgType*) { return nullptr; }
+    virtual ReturnType* operator()(ArgType*) { return nullptr; }
 };
 
 
@@ -22,11 +22,8 @@ public:
 
     QueryTask(KDTree* tree_in, const uint64_t& num_neighbors_in): tree(tree_in), num_neighbors(num_neighbors_in) {}
 
-    KNNQueue* operator()(KDNode* query_point) {
-        KNNSearcher searcher(this->tree, this->num_neighbors, query_point);
-//        assert(tree != nullptr);
-//        assert(query_point != nullptr);
-        return searcher.nearestNeighborsSearch();
+    KNNQueue* operator()(KDNode* query_point) override {
+        return nearestNeighborsSearch(query_point, this->num_neighbors, this->tree);
     }
 
 };
