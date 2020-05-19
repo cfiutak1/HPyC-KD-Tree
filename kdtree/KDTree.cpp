@@ -2,12 +2,9 @@
 
 #include "../quickselect/AdaptiveQuickselect.hpp"
 
-#include <cstring>
 #include <algorithm>
 #include <iterator>
-#include <cstdlib>
-#include <cassert>
-#include <thread>
+#include <future>
 
 
 void KDTree::buildTreeParallel() {
@@ -22,48 +19,37 @@ KDNode* KDTree::buildSubTreeDepthFirst(const uint64_t& begin, const uint64_t& en
 
     if (range == 1) {
         this->points[begin]->depth = depth;
+
         return this->points[begin];
-//        return new KDNode(*(this->points.begin() + begin), depth);
     }
 
     else if (range == 2) {
-        KDNode* child = this->points[begin];
-        child->depth = depth + 1;
-//        KDNode* new_node = new KDNode(*(this->points.begin() + begin), depth + 1);
+        KDNode* parent;
+        KDNode* child;
 
-        if (this->points.at(begin)->getCoordinate(depth + 1) < this->points.at(begin + 1)->getCoordinate(depth + 1)) {
-            KDNode* new_node = this->points[begin + 1];
-            new_node->left_child = child;
-            new_node->depth = depth;
-            return new_node;
-//            return new KDNode(
-//                *(this->points.begin() + begin + 1),
-//                child,
-//                nullptr,
-//                depth
-//            );
+        if (comp_lt(this->points[begin], this->points[begin + 1], depth - 1)) {
+            parent = this->points[begin + 1];
+            child = this->points[begin];
         }
 
-        KDNode* new_node = this->points[begin + 1];
-        new_node->right_child = child;
-        new_node->depth = depth;
+        else {
+            parent = this->points[begin];
+            child = this->points[begin + 1];
+        }
 
-        return new_node;
+        if (comp_lt(child, parent, depth)) { parent->left_child = child; }
+        else { parent->right_child = child; }
 
-//        return new KDNode(
-//            *(this->points.begin() + begin + 1),
-//            nullptr,
-//            new_node,
-//            depth
-//        );
+        parent->depth = depth;
+        child->depth = depth + 1;
 
+        return parent;
     }
 
     std::vector<KDNode*>::iterator front = this->points.begin() + begin;
 
     uint64_t median = range / 2;
-//    AdaptiveQuickselect selector(depth);
-    //printf("%s:%d %ld @%lu/%lu\n", __FILE__, __LINE__, end - begin, depth % this->num_dimensions, this->selectors.size());
+
     this->selectors[depth % this->num_dimensions]->adaptiveQuickselect(this->points.begin() + begin, this->points.begin() + end, median);
 
     KDNode* value = *(front + median);
@@ -92,8 +78,6 @@ KDNode* KDTree::buildSubTreeDepthFirst(const uint64_t& begin, const uint64_t& en
         value->depth = depth;
 
         return value;
-
-//        return new KDNode(value, left_child, right_child_future.get(), depth);
     }
 
     KDNode* left_child = this->buildSubTreeDepthFirst(l_begin, l_end, depth + 1, 0);
@@ -104,7 +88,4 @@ KDNode* KDTree::buildSubTreeDepthFirst(const uint64_t& begin, const uint64_t& en
     value->depth = depth;
 
     return value;
-
-//    return new KDNode(value, left_child, right_child, depth);
-
 }

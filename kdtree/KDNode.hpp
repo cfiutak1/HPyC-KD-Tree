@@ -31,12 +31,12 @@ public:
         return this->coordinates[dimension % this->num_dimensions];
     }
 
-    float distanceBetween(KDNode* n) const {
-        float distance = 0.0;
+    double distanceBetween(KDNode* n) const {
+        double distance = 0.0;
 
         for (uint64_t i = 0; i < this->num_dimensions; i++) {
-            float diff_between_dimensions = this->coordinates[i] - n->getCoordinate(i);
-            distance += pow(diff_between_dimensions, 2);
+            double diff_between_dimensions = this->coordinates[i] - n->getCoordinate(i);
+            distance += (diff_between_dimensions * diff_between_dimensions);
         }
 
         return distance;
