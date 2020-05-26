@@ -2,14 +2,14 @@
 #define NEIGHBOR_HPP
 
 //#include "Point.hpp"
-#include "KDNode.hpp"
+//#include "float.hpp"
 
 class Neighbor {
 public:
-    KDNode* point;
+    float* point;
     double distance_from_queried_point;
 
-    Neighbor(KDNode* point, double distance_from_queried_point) {
+    Neighbor(float* point, double distance_from_queried_point) {
         this->point = point;
         this->distance_from_queried_point = distance_from_queried_point;
     }

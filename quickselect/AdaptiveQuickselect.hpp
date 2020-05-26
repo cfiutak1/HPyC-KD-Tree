@@ -5,12 +5,11 @@
 #include <functional>
 #include "Partition.hpp"
 #include "MedianOfNinthers.hpp"
-#include "../kdtree/KDNode.hpp"
 
 
 class AdaptiveQuickselect {
 private:
-    typedef typename std::vector<KDNode*>::iterator iter_t;
+    typedef typename std::vector<float*>::iterator iter_t;
     // 2^17 - Clang doesn't like pow() in constexprs
     static constexpr const long SAMPLING_THRESHOLD = 1 << 17;
 
@@ -77,7 +76,7 @@ public:
         const iter_t& subarray_end,
         const iter_t& extrema_chunk_begin,
         const iter_t& extrema_chunk_end,
-        const std::function<bool(const KDNode*, const KDNode*, const unsigned long&)> comp)
+        const std::function<bool(const float*, const float*, const unsigned long&)> comp)
     {
         long extrema_to_compute = std::distance(extrema_chunk_begin, extrema_chunk_end);
         long chunk_size = std::distance(subarray_begin, subarray_end) / extrema_to_compute;

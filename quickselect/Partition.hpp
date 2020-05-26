@@ -1,14 +1,30 @@
 #ifndef PARTITION_HPP
 #define PARTITION_HPP
 
-#include "../kdtree/KDNode.hpp"
+
 #include <vector>
-//#include <cassert>
+
+
+inline bool comp_lt(const float* n1, const float* n2, const unsigned long& dimension) {
+    return n1[dimension] < n2[dimension];
+}
+
+inline bool comp_gt(const float* n1, const float* n2, const unsigned long& dimension) {
+    return n1[dimension] > n2[dimension];
+}
+
+inline bool comp_lte(const float* n1, const float* n2, const unsigned long& dimension) {
+    return n1[dimension] <= n2[dimension];
+}
+
+inline bool comp_gte(const float* n1, const float* n2, const unsigned long& dimension) {
+    return n1[dimension] >= n2[dimension];
+}
 
 
 class Partition {
 private:
-    typedef std::vector<KDNode*>::iterator iter_t;
+    typedef std::vector<float*>::iterator iter_t;
 
     unsigned long dimension = 0;
 
@@ -29,14 +45,9 @@ private:
     }
 
 public:
-    //Partition() = default;
-    Partition(unsigned long dimension_in): dimension(dimension_in) {
-    	//printf("%s:%d %lu\n", __FILE__, __LINE__, dimension_in);
-    }
-
+    Partition(unsigned long dimension_in): dimension(dimension_in) {}
 
     iter_t hoarePartition(const iter_t& begin, const iter_t& end, const unsigned long& partition_index) {
-//	    printf("%s:%d len=%lu pi=%lu\n", __FILE__, __LINE__, end - begin, partition_index);
         std::swap(*begin, *(begin + partition_index));
 
         iter_t forward = begin + 1;
@@ -46,7 +57,7 @@ public:
 
             while (true) {
                 if (std::distance(begin, forward) > std::distance(begin, reverse)) goto end_loop;
-//		printf("%s:%d dim=%lu\n", __FILE__, __LINE__, this->dimension);
+
                 if (comp_gte( *forward, *begin,this->dimension)) break;
                 ++forward;
             }
@@ -54,8 +65,6 @@ public:
             while (comp_lt(*begin, *reverse, this->dimension)) --reverse;
 
             if (std::distance(begin, forward) >= std::distance(begin, reverse)) break;
-
-
 
             std::swap(*forward, *reverse);
 
@@ -80,8 +89,7 @@ public:
         iter_t left_subarray_traverser = array_begin;
         iter_t right_subarray_traverser = array_end - 1;
 
-        // this being a pointer may cause problems
-        KDNode* pivot_value = *pivot;
+        float* pivot_value = *pivot;
 
         while (left_subarray_traverser != left_subarray_end && right_subarray_traverser != (right_subarray_begin)) {
             if (comp_gt(*left_subarray_traverser, pivot_value, this->dimension) && comp_lt(*right_subarray_traverser, pivot_value, this->dimension)) {

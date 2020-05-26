@@ -1,5 +1,5 @@
-#ifndef KDNODE_HPP
-#define KDNODE_HPP
+#ifndef ARRAYKDNODE_HPP
+#define ARRAYKDNODE_HPP
 
 #include <cmath>
 #include <cstdint>
@@ -11,11 +11,7 @@ public:
     const uint64_t& num_dimensions;
     float* coordinates;
 
-    KDNode* left_child = nullptr;
-    KDNode* right_child = nullptr;
-    uint64_t depth = 0;
-
-
+    
     KDNode(const uint64_t& num_dimensions_in): num_dimensions(num_dimensions_in) {
         this->coordinates = new float[num_dimensions_in];
     }
@@ -50,20 +46,21 @@ public:
     }
 };
 
-inline bool comp_lt(const KDNode* n1, const KDNode* n2, const unsigned long& dimension) {
-    return n1->getCoordinate(dimension) < n2->getCoordinate(dimension);
-}
 
-inline bool comp_gt(const KDNode* n1, const KDNode* n2, const unsigned long& dimension) {
-    return n1->getCoordinate(dimension) > n2->getCoordinate(dimension);
-}
-
-inline bool comp_lte(const KDNode* n1, const KDNode* n2, const unsigned long& dimension) {
-    return n1->getCoordinate(dimension) <= n2->getCoordinate(dimension);
-}
-
-inline bool comp_gte(const KDNode* n1, const KDNode* n2, const unsigned long& dimension) {
-    return n1->getCoordinate(dimension) >= n2->getCoordinate(dimension);
-}
+//inline bool comp_lt(const KDNode* n1, const KDNode* n2, const unsigned long& dimension) {
+//    return n1->getCoordinate(dimension) < n2->getCoordinate(dimension);
+//}
+//
+//inline bool comp_gt(const KDNode* n1, const KDNode* n2, const unsigned long& dimension) {
+//    return n1->getCoordinate(dimension) > n2->getCoordinate(dimension);
+//}
+//
+//inline bool comp_lte(const KDNode* n1, const KDNode* n2, const unsigned long& dimension) {
+//    return n1->getCoordinate(dimension) <= n2->getCoordinate(dimension);
+//}
+//
+//inline bool comp_gte(const KDNode* n1, const KDNode* n2, const unsigned long& dimension) {
+//    return n1->getCoordinate(dimension) >= n2->getCoordinate(dimension);
+//}
 
 #endif

@@ -1,28 +1,39 @@
 #include "KNNQueue.hpp"
 
 
-bool KNNQueue::closerThanFarthestNeighbor(KDNode* p) {
-    return this->query_point->distanceBetween(p) < this->top().distance_from_queried_point;
+double distanceBetween(const float* p1, const float* p2, const int& size) {
+    double distance = 0.0;
+
+    for (int i = 0; i < size; ++i) {
+        double diff = p2[i] - p1[i];
+        distance += (diff * diff);
+    }
+
+    return distance;
+}
+
+bool KNNQueue::closerThanFarthestNeighbor(float* p) {
+    return distanceBetween(this->query_point, p, this->num_dimensions) < this->queue.top().distance_from_queried_point;
 }
 
 
-bool KNNQueue::registerAsNeighborIfCloser(KDNode* potential_neighbor) {
+bool KNNQueue::registerAsNeighborIfCloser(float* potential_neighbor) {
     if (!this->isFull()) {
-        double distance = this->query_point->distanceBetween(potential_neighbor);
+        double distance = distanceBetween(this->query_point, potential_neighbor, this->num_dimensions);
 
         Neighbor new_neighbor(potential_neighbor, distance);
-        super::push(new_neighbor);
+        this->queue.push(new_neighbor);
 
         return true;
     }
 
 
     if (this->closerThanFarthestNeighbor(potential_neighbor)) {
-        double distance = this->query_point->distanceBetween(potential_neighbor);
+        double distance = distanceBetween(this->query_point, potential_neighbor, this->num_dimensions);
         Neighbor new_neighbor(potential_neighbor, distance);
 
-        super::pop();
-        super::push(new_neighbor);
+        this->queue.pop();
+        this->queue.push(new_neighbor);
 
         return true;
     }
@@ -31,33 +42,3 @@ bool KNNQueue::registerAsNeighborIfCloser(KDNode* potential_neighbor) {
 }
 
 
-bool KNNQueue::registerAsNeighborIfCloserTS(KDNode* potential_neighbor) {
-    if (!this->isFull()) {
-        std::lock_guard<std::mutex> lock(this->mtx);
-
-        if (!this->isFull()) {
-            double distance = this->query_point->distanceBetween(potential_neighbor);
-
-            Neighbor new_neighbor(potential_neighbor, distance);
-            super::push(new_neighbor);
-
-            return true;
-        }
-    }
-
-    if (this->closerThanFarthestNeighbor(potential_neighbor)) {
-        std::lock_guard<std::mutex> lock(this->mtx);
-
-        if (this->closerThanFarthestNeighbor(potential_neighbor)) {
-            double distance = this->query_point->distanceBetween(potential_neighbor);
-            Neighbor new_neighbor(potential_neighbor, distance);
-
-            super::pop();
-            super::push(new_neighbor);
-
-            return true;
-        }
-    }
-
-    return false;
-}

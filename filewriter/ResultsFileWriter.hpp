@@ -8,6 +8,7 @@
 #include <map>
 #include <stack>
 
+
 #include "../kdtree/Neighbor.hpp"
 #include "../kdtree/KNNQueue.hpp"
 #include "../filedata/FileData.hpp"
@@ -77,12 +78,28 @@ public:
     }
 
     void writeQueryResults(KNNQueue* nearest_neighbors) {
-        // printf("%s:%d\n", __FILE__, __LINE__);
+//         printf("%s:%d Farthest point is %f\n", __FILE__, __LINE__, nearest_neighbors->top().point[0]);
+        std::stack<Neighbor> neighbors;
+
         while (!nearest_neighbors->empty()) {
-            this->results_file << nearest_neighbors->top().point->coordinates;
-            // nearest_neighbors->top().point->printCoordinates();
+            neighbors.push(nearest_neighbors->top());
             nearest_neighbors->pop();
         }
+
+        while (!neighbors.empty()) {
+            // TODO fix this
+            float* point = neighbors.top().point;
+            printf("%f, ", neighbors.top().distance_from_queried_point);
+            for (uint64_t i = 0; i < this->query_file_data->num_dimensions; ++i) {
+                printf("%llu:%f ", i, point[i]);
+            }
+            printf("\n");
+//            this->results_file << nearest_neighbors->top().point;
+            // nearest_neighbors->top().point->printCoordinates();
+            neighbors.pop();
+        }
+
+        printf("\n");
 
         delete nearest_neighbors;
     }

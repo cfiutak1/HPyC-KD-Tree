@@ -11,12 +11,9 @@
 #include "filewriter/ResultsFileWriter.hpp"
 #include "kdtree/KDTree.hpp"
 #include "kdtree/KNNQueue.hpp"
-#include "kdtree/KNNSearch.hpp"
-#include "singlequerysearcher/KNNSingleQuerySearcher.hpp"
-#include "taskmanager/Task.hpp"
-#include "taskmanager/TaskManager.hpp"
+//#include "taskmanager/Task.hpp"
+//#include "taskmanager/TaskManager.hpp"
 
-#include <iostream>
 
 
 inline bool file_exists (const std::string& name) {
@@ -66,12 +63,12 @@ int main(int argc, char** argv) {
     auto file_read_and_build_start = std::chrono::steady_clock::now();
     TrainingFileProcessor training_file_processor(training_file_name);
     TrainingFileData* training_file_data = training_file_processor.readTrainingFileHeader();
-    std::vector<KDNode*> training_points = training_file_processor.readPoints();
+    std::vector<float*> training_points = training_file_processor.readPoints();
 
 
     auto build_start = std::chrono::steady_clock::now();
-    KDTree* tree = new KDTree(num_threads, training_file_data, training_points);
-    tree->buildTreeParallel();
+    KDTree* tree = new KDTree(training_points, training_file_data->num_dimensions);
+    tree->buildTree();
     auto file_read_and_build_end = std::chrono::steady_clock::now();
     auto build_end = std::chrono::steady_clock::now();
     std::chrono::duration<double> file_read_and_build_diff = (file_read_and_build_end - file_read_and_build_start);
@@ -83,32 +80,18 @@ int main(int argc, char** argv) {
 
     QueryFileProcessor query_file_processor(query_file_name);
     QueryFileData* query_file_data = query_file_processor.readQueryFileHeader();
-    std::vector<KDNode*> query_points = query_file_processor.readPoints();
+    std::vector<float*> query_points = query_file_processor.readPoints();
 
     ResultsFileWriter writer(result_file_name, training_file_data, query_file_data);
 
 
 
-    if (num_threads > 0) {
-        auto query_start = std::chrono::steady_clock::now();
-        TaskManager<KDNode, KNNQueue> query_task_manager(query_points, num_threads);
-        QueryTask task(tree, query_file_data->num_neighbors);
+    for (unsigned long i = 0; i < query_points.size(); ++i) {
+        KNNQueue* results = tree->nearestNeighborsSearch(query_points[i], query_file_data->num_neighbors);
 
-        std::vector<std::vector<KNNQueue*>> results = query_task_manager.completeTasks<QueryTask>(task);
-        writer.generateResultsFile(results);
-        auto query_end = std::chrono::steady_clock::now();
-        std::chrono::duration<double> query_diff = (query_end - query_start);
-        printf("query %f\n", query_diff.count());
+        writer.writeQueryResults(results);
     }
 
-
-    else {
-        for (unsigned long i = 0; i < query_points.size(); ++i) {
-            KNNQueue* results = nearestNeighborsSearch(query_points[i], query_file_data->num_neighbors, tree);
-
-            writer.writeQueryResults(results);
-        } 
-    }
 
     auto query_and_file_out_end = std::chrono::steady_clock::now();
     std::chrono::duration<double> query_and_file_out_diff = (query_and_file_out_end - query_and_file_out_start);
@@ -116,10 +99,10 @@ int main(int argc, char** argv) {
 
 
     delete tree;
-    //for (auto p : training_points) delete p;
-    for (auto p : query_points) delete p;
+//    for (auto p : training_points) delete p;
+//    for (auto p : query_points) delete p;
 
     delete training_file_data;
 
-    delete query_file_data;
+//    delete query_file_data;
 }
