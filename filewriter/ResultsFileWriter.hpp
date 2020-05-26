@@ -57,13 +57,13 @@ public:
         this->results_file << this->query_file_data->num_neighbors;
     }
 
-    void generateResultsFile(std::vector<std::vector<KNNQueue*>>& results) {
+    void generateResultsFile(std::vector<std::vector<KNNQueue>>& results) {
         this->writeFileHeader();
 
         for (auto map_it = results.begin(); map_it != results.end(); map_it++) {
             auto chunk = *map_it;
 
-            for (KNNQueue* result : chunk) {
+            for (KNNQueue& result : chunk) {
                 this->generateResultsFile(result);
             }
         }
@@ -71,37 +71,37 @@ public:
         this->results_file.close();
     }
 
-    void generateResultsFile(KNNQueue* results) {
+    void generateResultsFile(KNNQueue& results) {
         this->writeQueryResults(results);
 
         this->results_file.close();
     }
 
-    void writeQueryResults(KNNQueue* nearest_neighbors) {
+    void writeQueryResults(KNNQueue& nearest_neighbors) {
 //         printf("%s:%d Farthest point is %f\n", __FILE__, __LINE__, nearest_neighbors->top().point[0]);
         std::stack<Neighbor> neighbors;
 
-        while (!nearest_neighbors->empty()) {
-            neighbors.push(nearest_neighbors->top());
-            nearest_neighbors->pop();
+        while (!nearest_neighbors.empty()) {
+            neighbors.push(nearest_neighbors.top());
+            nearest_neighbors.pop();
         }
 
         while (!neighbors.empty()) {
             // TODO fix this
-            float* point = neighbors.top().point;
-            printf("%f, ", neighbors.top().distance_from_queried_point);
-            for (uint64_t i = 0; i < this->query_file_data->num_dimensions; ++i) {
-                printf("%llu:%f ", i, point[i]);
-            }
-            printf("\n");
-//            this->results_file << nearest_neighbors->top().point;
+//            float* point = neighbors.top().point;
+//            printf("%f, ", neighbors.top().distance_from_queried_point);
+//            for (uint64_t i = 0; i < this->query_file_data->num_dimensions; ++i) {
+//                printf("%llu:%f ", i, point[i]);
+//            }
+//            printf("\n");
+            this->results_file << nearest_neighbors.top().point;
             // nearest_neighbors->top().point->printCoordinates();
             neighbors.pop();
         }
 
-        printf("\n");
+//        printf("\n");
 
-        delete nearest_neighbors;
+//        delete nearest_neighbors;
     }
 };
 

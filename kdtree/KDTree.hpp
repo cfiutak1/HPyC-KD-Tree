@@ -44,7 +44,7 @@ public:
     void buildTree();
     void buildSubTree(const uint64_t& begin, const uint64_t& end, uint64_t depth);
 
-    KNNQueue* nearestNeighborsSearch(float* query_point, uint64_t num_neighbors);
+    KNNQueue nearestNeighborsSearch(float* query_point, const uint64_t& num_neighbors);
     void nearestNeighborsSearchHelper(float* query_point, uint64_t begin, uint64_t end, uint64_t depth, KNNQueue& queue);
 };
 

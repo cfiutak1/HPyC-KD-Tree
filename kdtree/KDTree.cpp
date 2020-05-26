@@ -41,10 +41,10 @@ void KDTree::buildSubTree(const uint64_t& begin, const uint64_t& end, uint64_t d
 }
 
 
-KNNQueue* KDTree::nearestNeighborsSearch(float* query_point, uint64_t num_neighbors) {
-    KNNQueue* queue = new KNNQueue(query_point, num_neighbors, this->num_dimensions);
+KNNQueue KDTree::nearestNeighborsSearch(float* query_point, const uint64_t& num_neighbors) {
+    KNNQueue queue(query_point, num_neighbors, this->num_dimensions);
 
-    this->nearestNeighborsSearchHelper(query_point, 0, this->num_points, 0, *queue);
+    this->nearestNeighborsSearchHelper(query_point, 0, this->num_points, 0, queue);
 
     return queue;
 }

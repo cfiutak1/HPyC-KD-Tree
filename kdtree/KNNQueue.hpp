@@ -19,7 +19,7 @@ private:
     uint64_t num_neighbors;
     uint64_t num_dimensions;
 
-    std::mutex mtx;
+//    std::mutex mtx;
 
     bool closerThanFarthestNeighbor(float* p);
 

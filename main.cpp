@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
 
 
     for (unsigned long i = 0; i < query_points.size(); ++i) {
-        KNNQueue* results = tree->nearestNeighborsSearch(query_points[i], query_file_data->num_neighbors);
+        KNNQueue results = tree->nearestNeighborsSearch(query_points[i], query_file_data->num_neighbors);
 
         writer.writeQueryResults(results);
     }
