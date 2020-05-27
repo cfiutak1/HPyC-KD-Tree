@@ -5,6 +5,9 @@
 #include <functional>
 #include "Partition.hpp"
 #include "MedianOfNinthers.hpp"
+//#include "../array_kdtree/float.hpp"
+//#include "../kdtree/float.hpp"
+
 
 
 class AdaptiveQuickselect {
@@ -71,12 +74,13 @@ public:
         }
     }
 
+
+    template <bool (*comp)(const float*, const float*, const unsigned long&)>
     void medianOfExtrema(
         const iter_t& subarray_begin,
         const iter_t& subarray_end,
         const iter_t& extrema_chunk_begin,
-        const iter_t& extrema_chunk_end,
-        const std::function<bool(const float*, const float*, const unsigned long&)> comp)
+        const iter_t& extrema_chunk_end)
     {
         long extrema_to_compute = std::distance(extrema_chunk_begin, extrema_chunk_end);
         long chunk_size = std::distance(subarray_begin, subarray_end) / extrema_to_compute;
@@ -103,7 +107,9 @@ public:
         iter_t minima_chunk_begin = array_begin;
         iter_t minima_chunk_end = array_begin + minima_to_compute;
 
-        this->medianOfExtrema(minima_chunk_end, array_end, minima_chunk_begin, minima_chunk_end, comp_lt);
+//        bool (*fptr)(const float*, const float*, const unsigned long&);
+
+        this->medianOfExtrema<comp_lt>(minima_chunk_end, array_end, minima_chunk_begin, minima_chunk_end);
 
         this->adaptiveQuickselect(minima_chunk_begin, minima_chunk_end, partition_index);
 
@@ -127,7 +133,7 @@ public:
 
         iter_t subarray_begin = array_begin + (array_length % maxima_to_compute);
 
-        this->medianOfExtrema(subarray_begin, maxima_chunk_begin, maxima_chunk_begin, maxima_chunk_end, comp_gt);
+        this->medianOfExtrema<comp_gt>(subarray_begin, maxima_chunk_begin, maxima_chunk_begin, maxima_chunk_end);
 
         this->adaptiveQuickselect(maxima_chunk_begin, maxima_chunk_end, array_length - partition_index);
 
