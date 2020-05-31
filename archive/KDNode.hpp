@@ -47,20 +47,4 @@ public:
 };
 
 
-//inline bool comp_lt(const KDNode* n1, const KDNode* n2, const unsigned long& dimension) {
-//    return n1->getCoordinate(dimension) < n2->getCoordinate(dimension);
-//}
-//
-//inline bool comp_gt(const KDNode* n1, const KDNode* n2, const unsigned long& dimension) {
-//    return n1->getCoordinate(dimension) > n2->getCoordinate(dimension);
-//}
-//
-//inline bool comp_lte(const KDNode* n1, const KDNode* n2, const unsigned long& dimension) {
-//    return n1->getCoordinate(dimension) <= n2->getCoordinate(dimension);
-//}
-//
-//inline bool comp_gte(const KDNode* n1, const KDNode* n2, const unsigned long& dimension) {
-//    return n1->getCoordinate(dimension) >= n2->getCoordinate(dimension);
-//}
-
 #endif

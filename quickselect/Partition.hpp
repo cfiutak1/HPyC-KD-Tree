@@ -5,7 +5,6 @@
 #include <vector>
 
 
-
 inline bool comp_lt(const float* n1, const float* n2, const unsigned long& dimension) {
     return n1[dimension] < n2[dimension];
 }

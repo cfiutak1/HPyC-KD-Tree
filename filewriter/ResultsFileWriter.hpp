@@ -12,6 +12,9 @@
 #include "../kdtree/Neighbor.hpp"
 #include "../kdtree/KNNQueue.hpp"
 #include "../filedata/FileData.hpp"
+#include "../filedata/TrainingFileData.hpp"
+#include "../filedata/QueryFileData.hpp"
+
 
 class ResultsFileWriter {
 private:
@@ -80,6 +83,7 @@ public:
     void writeQueryResults(KNNQueue& nearest_neighbors) {
 //         printf("%s:%d Farthest point is %f\n", __FILE__, __LINE__, nearest_neighbors->top().point[0]);
         std::stack<Neighbor> neighbors;
+//        std::stack<float*> neighbors;
 
         while (!nearest_neighbors.empty()) {
             neighbors.push(nearest_neighbors.top());
@@ -95,6 +99,7 @@ public:
 //            }
 //            printf("\n");
             this->results_file << nearest_neighbors.top().point;
+//            this->results_file << nearest_neighbors.top();
             // nearest_neighbors->top().point->printCoordinates();
             neighbors.pop();
         }

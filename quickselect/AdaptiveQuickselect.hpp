@@ -5,9 +5,6 @@
 #include <functional>
 #include "Partition.hpp"
 #include "MedianOfNinthers.hpp"
-//#include "../array_kdtree/float.hpp"
-//#include "../kdtree/float.hpp"
-
 
 
 class AdaptiveQuickselect {
@@ -106,8 +103,6 @@ public:
 
         iter_t minima_chunk_begin = array_begin;
         iter_t minima_chunk_end = array_begin + minima_to_compute;
-
-//        bool (*fptr)(const float*, const float*, const unsigned long&);
 
         this->medianOfExtrema<comp_lt>(minima_chunk_end, array_end, minima_chunk_begin, minima_chunk_end);
 

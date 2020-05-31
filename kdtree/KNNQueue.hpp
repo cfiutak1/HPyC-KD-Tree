@@ -14,21 +14,23 @@
 class KNNQueue {
 private:
 //    typedef std::priority_queue<Neighbor, std::vector<Neighbor>, NeighborComparator> super;
+    const static NeighborComparator comp;
     std::priority_queue<Neighbor, std::vector<Neighbor>, NeighborComparator> queue;
     float* query_point;
-    uint64_t num_neighbors;
-    uint64_t num_dimensions;
+    const uint64_t& num_neighbors;
+    const uint64_t& num_dimensions;
 
 //    std::mutex mtx;
 
-    bool closerThanFarthestNeighbor(float* p);
+    bool closerThanFarthestNeighbor(const double& p);
 
 public:
-    KNNQueue() {}
-    KNNQueue(float* query_point_in, uint64_t num_neighbors_in, uint64_t num_dimensions_in):
+    KNNQueue() = delete;
+    KNNQueue(float* query_point_in, const uint64_t& num_neighbors_in, const uint64_t& num_dimensions_in):
         query_point(query_point_in),
         num_neighbors(num_neighbors_in),
-        num_dimensions(num_dimensions_in)
+        num_dimensions(num_dimensions_in),
+        queue(comp)
     {}
 
     ~KNNQueue() {}

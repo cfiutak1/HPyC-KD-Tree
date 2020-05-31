@@ -55,6 +55,8 @@ void KDTree::nearestNeighborsSearchHelper(float* query_point, uint64_t begin, ui
     uint64_t median = range / 2;
     uint64_t traverser_index = begin + median;
 
+//    printf("%s:%d %lu/%lu\n", __FILE__, __LINE__, traverser_index, this->nodes.size());
+
     queue.registerAsNeighborIfCloser(this->nodes[traverser_index]);
 
     if (range == 1) { return; }
@@ -76,7 +78,7 @@ void KDTree::nearestNeighborsSearchHelper(float* query_point, uint64_t begin, ui
         nearestNeighborsSearchHelper(query_point, l_begin, l_end, depth + 1, queue);
 
         double farthest_neighbor_distance = queue.top().distance_from_queried_point;
-
+//        double farthest_neighbor_distance = distanceBetween(query_point, queue.top(), this->num_dimensions);
         uint64_t r_begin = traverser_index + 1;
         uint64_t r_end = end;
 
@@ -92,6 +94,7 @@ void KDTree::nearestNeighborsSearchHelper(float* query_point, uint64_t begin, ui
         nearestNeighborsSearchHelper(query_point, r_begin, r_end, depth + 1, queue);
 
         double farthest_neighbor_distance = queue.top().distance_from_queried_point;
+//        double farthest_neighbor_distance = distanceBetween(query_point, queue.top(), this->num_dimensions);
 
         uint64_t l_begin = begin;
         uint64_t l_end = traverser_index;
