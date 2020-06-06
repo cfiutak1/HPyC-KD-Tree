@@ -26,7 +26,7 @@ inline bool KNNQueue::closerThanFarthestNeighbor(const double& p) const {
  * capacity or if the point is closer than an existing neighbor. If the point is closer than an existing neighbor AND
  * the priority queue is at capacity, removes the furthest neighbor before adding the point.
  */
-bool KNNQueue::registerAsNeighborIfCloser(const float* potential_neighbor) {
+bool KNNQueue::registerAsNeighborIfCloser(float* potential_neighbor) {
     // If the priority queue is below capacity, add the potential neighbor regardless of its distance to the query point.
     if (!this->isFull()) {
         double distance = distanceBetween(this->query_point, potential_neighbor, this->num_dimensions);
@@ -49,5 +49,3 @@ bool KNNQueue::registerAsNeighborIfCloser(const float* potential_neighbor) {
 
     return false;
 }
-
-

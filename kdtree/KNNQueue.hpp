@@ -38,7 +38,7 @@ public:
 
     inline bool isFull() const { return this->nearest_neighbors.size() == this->num_neighbors; }
 
-    bool registerAsNeighborIfCloser(const float* potential_neighbor);
+    bool registerAsNeighborIfCloser(float* potential_neighbor);
 };
 
 #endif
