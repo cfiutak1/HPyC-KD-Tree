@@ -1,5 +1,7 @@
 #include "KNNQueue.hpp"
 
+#include <cstdio>
+
 
 /*
  * Free function that computes the euclidean squared distance between two float arrays of equal size.
@@ -27,6 +29,7 @@ inline bool KNNQueue::closerThanFarthestNeighbor(const double& p) const {
  * the priority queue is at capacity, removes the furthest neighbor before adding the point.
  */
 bool KNNQueue::registerAsNeighborIfCloser(float* potential_neighbor) {
+//    printf("%s:%d\n", __FILE__, __LINE__);
     // If the priority queue is below capacity, add the potential neighbor regardless of its distance to the query point.
     if (!this->isFull()) {
         double distance = distanceBetween(this->query_point, potential_neighbor, this->num_dimensions);

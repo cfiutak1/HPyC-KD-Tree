@@ -21,30 +21,24 @@ public:
         if (this->input_stream) this->input_stream.close();
     }
 
-    std::vector<float*> readPoints() {
+    float** readPoints() {
         uint64_t num_points = this->file_data->num_points;
-        std::vector<float*> points;
-        points.reserve(num_points);
+        alignas(64) float** points = new float*[num_points];
 
         for (uint64_t i = 0; i < num_points; i++) {
             if (this->input_stream) {
-//                KDNode* n = new KDNode(this->file_data->num_dimensions);
-
                 float* f = new float[this->file_data->num_dimensions];
 
                 this->input_stream.read(
-                    (char*) f,
-                    this->file_data->num_dimensions * sizeof(float)
+                        (char*) f,
+                        this->file_data->num_dimensions * sizeof(float)
                 );
-//                printf("%s:%d ", __FILE__, __LINE__);
-//
-//                for (int i = 0; i < this->file_data->num_dimensions; ++i) {
-//                    printf("%f ", f[i]);
-//                }
-//                printf("\n");
-                points.push_back(f);
+
+                points[i] = (f);
             }
         }
+
+        this->close();
 
         return points;
     }

@@ -13,6 +13,7 @@ private:
     const float* query_point;
     const uint64_t& num_neighbors;
     const uint64_t& num_dimensions;
+    // TODO make this const static again
     const static NeighborComparator comp;
     std::priority_queue<Neighbor, std::vector<Neighbor>, NeighborComparator> nearest_neighbors;
 
@@ -26,7 +27,10 @@ public:
         num_neighbors(num_neighbors_in),
         num_dimensions(num_dimensions_in),
         nearest_neighbors(comp)
-    {}
+    {
+//        this->comp = NeighborComparator();
+//        this->nearest_neighbors = std::priority_queue<Neighbor, std::vector<Neighbor>, NeighborComparator>(comp);
+    }
 
     ~KNNQueue() {}
 

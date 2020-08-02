@@ -1,5 +1,7 @@
 #include "KDTree.hpp"
 
+#include "../quickselect/median_of_ninthers.h"
+
 /*
  * Private method that restructures the array given to the constructor to a well-balanced KD-Tree.
  */
@@ -21,11 +23,8 @@ void KDTree::buildTree(const uint64_t subarray_begin, const uint64_t subarray_en
     uint64_t median = range / 2;
 
     // Partition the current subarray around the median at the current dimension.
-    this->selectors[depth].adaptiveQuickselect(
-            this->nodes.begin() + subarray_begin,
-            this->nodes.begin() + subarray_end,
-        median
-    );
+    // TODO Can AQS be adjusted to cut down the need for subtraction operations here?
+    adaptiveQuickselect<float*>(&(this->nodes[subarray_begin]), depth, median, subarray_end - subarray_begin);
 
     // Build left subtree (all elements left of the median)
     this->buildTree(subarray_begin, subarray_begin + median, (depth + 1) % this->num_dimensions);
