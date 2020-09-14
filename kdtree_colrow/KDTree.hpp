@@ -19,6 +19,8 @@ private:
 
     void nearestNeighborsSearch(const float* query_point, uint64_t begin, uint64_t end, uint64_t depth, KNNQueue& nearest_neighbors) const;
 
+    inline float* pointAt(const std::size_t index) const;
+
 public:
     KDTree(float** nodes_in, const uint64_t& num_points_in, uint64_t num_dimensions_in):
         nodes(nodes_in),
