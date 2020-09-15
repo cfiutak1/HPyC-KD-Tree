@@ -4,6 +4,7 @@ from typing import List, Tuple
 import sklearn.neighbors
 import datetime
 import numpy as np
+import time
 
 
 def read_training_file(training_file_name: str) -> (int, List[List[float]]):
@@ -58,7 +59,9 @@ def read_result_file(result_file_name: str):
 
 def generate_results_file(training_points: List[List[float]], query_points: List[List[float]], file_ids: Tuple[int], num_neighbors: int, results_file_name: str) -> None:
     distance_metric = sklearn.neighbors.DistanceMetric.get_metric("euclidean")
+    t = time.time()
     tree = sklearn.neighbors.KDTree(np.array(training_points), metric=distance_metric)
+    print(f"sklearn construction took {time.time() - t}")
 
     results_file = open(results_file_name, "wb")
 
@@ -73,6 +76,7 @@ def generate_results_file(training_points: List[List[float]], query_points: List
     results_file.write(struct.pack("=q", num_dimensions))
     results_file.write(struct.pack("=q", num_neighbors))
 
+    t = time.time()
     for i in range(num_queries):
         dist, ind = tree.query(np.array(query_points[i]).reshape(1, -1), k=num_neighbors)
 
@@ -82,6 +86,8 @@ def generate_results_file(training_points: List[List[float]], query_points: List
         for index in ind[0]:
             for dim in range(num_dimensions):
                 results_file.write(struct.pack("=f", training_points[index][dim]))
+
+    print(f"sklearn queries and file IO took {time.time() - t}")
 
 
     results_file.close()
@@ -106,5 +112,5 @@ def main():
 
 
 if __name__ == "__main__":
-    # main()
-    read_result_file("sklearn_results.out")
+    main()
+    # read_result_file("sklearn_results.out")

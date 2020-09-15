@@ -26,7 +26,7 @@ SingleQueryWorker.o: singlequerysearcher/SingleQueryWorker.cpp singlequerysearch
 	$(CC) $(CFLAGS) -c singlequerysearcher/SingleQueryWorker.cpp
 
 run: all
-	./program2 4 data/training_10000000_5.dat data/query_100000_5_10.dat results.out
+	./program2 1 data/training_10000000_5.dat data/query_100000_5_10.dat results.out
 
 memcheck: all
 	valgrind $(VFLAGS) ./program2 4 data/training_300_5.dat data/query_1_5_3.dat results.out
