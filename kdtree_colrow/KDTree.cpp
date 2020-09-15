@@ -1,6 +1,9 @@
 #include "KDTree.hpp"
+//#include "../quickselect/median_of_ninthers.h"
 
-#include "../quickselect/median_of_ninthers.h"
+#include "../adaptive_blockquickselect_colrow/adaptive_blockquickselect.hpp"
+#include <cstdio>
+#include <chrono>
 
 /*
  * Private method that restructures the array given to the constructor to a well-balanced KD-Tree.
@@ -13,8 +16,10 @@ void KDTree::buildTree(const uint64_t subarray_begin, const uint64_t subarray_en
 
     // Base case - If there are two elements left, they will be in their correct positions if they are sorted.
     else if (range == 2) {
-        if (this->nodes[subarray_begin][depth] > this->nodes[subarray_begin + 1][depth]) {
-            std::swap(this->nodes[subarray_begin], this->nodes[subarray_begin + 1]);
+        if (this->nodes[depth][subarray_begin] > this->nodes[depth][subarray_begin + 1]) {
+            for (uint64_t i = 0; i < this->num_dimensions; ++i) {
+                std::swap(this->nodes[i][subarray_begin], this->nodes[i][subarray_begin + 1]);
+            }
         }
 
         return;
@@ -24,7 +29,18 @@ void KDTree::buildTree(const uint64_t subarray_begin, const uint64_t subarray_en
 
     // Partition the current subarray around the median at the current dimension.
     // TODO Can AQS be adjusted to cut down the need for subtraction operations here?
-    adaptiveQuickselect<float*>(&(this->nodes[subarray_begin]), depth, median, subarray_end - subarray_begin);
+//    auto build_start = std::chrono::steady_clock::now();
+//    adaptiveQuickselect<float*>(&(this->nodes[subarray_begin]), depth, median, subarray_end - subarray_begin);
+    AdaptiveCacheAwareBlockquickselect qs(this->nodes, this->num_dimensions, depth);
+    qs.nth_element(subarray_begin, subarray_end, median);
+//    auto build_end= std::chrono::steady_clock::now();
+//    std::chrono::duration<double> build_diff = (build_end - build_start);
+//    printf("Selecting median of %lu elements took %f seconds\n", subarray_end - subarray_begin, build_diff.count());
+
+//    std::swap(
+//        this->nodes[0][subarray_begin + median],
+//        this->nodes[depth][subarray_begin + median]
+//    );
 
     // Build left subtree (all elements left of the median)
     this->buildTree(subarray_begin, subarray_begin + median, (depth + 1) % this->num_dimensions);
@@ -47,6 +63,17 @@ KNNQueue KDTree::nearestNeighborsSearch(const float* query_point, const uint64_t
 }
 
 
+inline float* KDTree::pointAt(const std::size_t index) const {
+    float* point = new float[this->num_dimensions];
+
+    for (uint64_t i = 0; i < this->num_dimensions; ++i) {
+        point[i] = this->nodes[i][index];
+    }
+
+    return point;
+}
+
+
 /*
  * Private method that executes the K nearest neighbors search for a given query point.
  */
@@ -54,7 +81,10 @@ void KDTree::nearestNeighborsSearch(const float* query_point, uint64_t begin, ui
     uint64_t range = end - begin;
     uint64_t traverser_index = begin + (range / 2);
 
-    nearest_neighbors.registerAsNeighborIfCloser(this->nodes[traverser_index]);
+    float* current_point = this->pointAt(traverser_index);
+
+
+    nearest_neighbors.registerAsNeighborIfCloser(current_point);
 
     // Base case - If there's one element left, it has already been tested so stop recursing.
     if (range == 1) { return; }
@@ -62,12 +92,12 @@ void KDTree::nearestNeighborsSearch(const float* query_point, uint64_t begin, ui
     // Base case - If there's two elements left, the 2nd element has already been tested. Thus, we simply register the
     // 1st element and stop recursing.
     if (range == 2) {
-        nearest_neighbors.registerAsNeighborIfCloser(this->nodes[traverser_index - 1]);
+        nearest_neighbors.registerAsNeighborIfCloser(this->pointAt(traverser_index - 1));
         return;
     }
 
     float query_at_current_dimension = query_point[depth];
-    float traverser_at_current_dimension = this->nodes[traverser_index][depth];
+    float traverser_at_current_dimension = this->nodes[depth][traverser_index];
     float difference_at_current_dimension = traverser_at_current_dimension - query_at_current_dimension;
     float distance_from_query_at_current_dimension = difference_at_current_dimension * difference_at_current_dimension;
 

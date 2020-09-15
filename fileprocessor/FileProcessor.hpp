@@ -29,9 +29,15 @@ public:
             if (this->input_stream) {
                 float* f = new float[this->file_data->num_dimensions];
 
+//                for (unsigned int j = 0; j < this->file_data->num_dimensions; ++j) {
+//                    printf("%lu ", &(f[j]));
+//                }
+//
+//                printf("\n");
+
                 this->input_stream.read(
-                        (char*) f,
-                        this->file_data->num_dimensions * sizeof(float)
+                    (char*) f,
+                    this->file_data->num_dimensions * sizeof(float)
                 );
 
                 points[i] = (f);
@@ -39,6 +45,33 @@ public:
         }
 
         this->close();
+
+        return points;
+    }
+
+
+    float** readPointsColRow() {
+        float** points = new float*[this->file_data->num_dimensions];
+
+        for (auto i = 0; i < this->file_data->num_dimensions; ++i) {
+            points[i] = new float[this->file_data->num_points];
+        }
+
+
+        float* read_buffer = new float[this->file_data->num_dimensions];
+
+        for (auto i = 0; i < this->file_data->num_points; ++i) {
+            this->input_stream.read(
+                (char*) read_buffer,
+                this->file_data->num_dimensions * sizeof(float)
+            );
+
+            for (auto j = 0; j < this->file_data->num_dimensions; ++j) {
+                points[j][i] = read_buffer[j];
+            }
+        }
+
+        delete[] read_buffer;
 
         return points;
     }
