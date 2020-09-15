@@ -50,5 +50,7 @@ bool KNNQueue::registerAsNeighborIfCloser(float* potential_neighbor) {
         return true;
     }
 
+    delete[] potential_neighbor;
+
     return false;
 }

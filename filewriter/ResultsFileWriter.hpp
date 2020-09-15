@@ -9,8 +9,8 @@
 #include <stack>
 
 
-#include "../kdtree/Neighbor.hpp"
-#include "../kdtree/KNNQueue.hpp"
+#include "../kdtree_colrow/Neighbor.hpp"
+#include "../kdtree_colrow/KNNQueue.hpp"
 #include "../filedata/FileData.hpp"
 #include "../filedata/TrainingFileData.hpp"
 #include "../filedata/QueryFileData.hpp"
@@ -33,7 +33,8 @@ private:
             urandom.close();
         }
 
-        return rand;
+        return 69;
+//        return rand;
     }
 
 public:
@@ -51,34 +52,23 @@ public:
     ~ResultsFileWriter() { this->results_file.close(); }
 
     void writeFileHeader() {
-        this->results_file << "RESULT\0\0";
-        this->results_file << this->training_file_data->file_id;
-        this->results_file << this->query_file_data->file_id;
-        this->results_file << this->generateFileID();
-        this->results_file << this->query_file_data->num_points;
-        this->results_file << this->query_file_data->num_dimensions;
-        this->results_file << this->query_file_data->num_neighbors;
+        char file_type[] = "RESULT\0\0";
+        auto file_id = this->generateFileID();
+        this->results_file.write(reinterpret_cast<const char*>(&file_type), 8);
+        this->results_file.write(reinterpret_cast<const char*>(&this->training_file_data->file_id), 8);
+        this->results_file.write(reinterpret_cast<const char*>(&this->query_file_data->file_id), 8);
+        this->results_file.write(reinterpret_cast<const char*>(&file_id), 8);
+        this->results_file.write(reinterpret_cast<const char*>(&(this->query_file_data->num_points)), 8);
+        this->results_file.write(reinterpret_cast<const char*>(&(this->query_file_data->num_dimensions)), 8);
+        this->results_file.write(reinterpret_cast<const char*>(&(this->query_file_data->num_neighbors)), 8);
     }
 
-    void generateResultsFile(std::vector<std::vector<KNNQueue>>& results) {
-        this->writeFileHeader();
 
-        for (auto map_it = results.begin(); map_it != results.end(); map_it++) {
-            auto chunk = *map_it;
-
-            for (KNNQueue& result : chunk) {
-                this->generateResultsFile(result);
-            }
-        }
-
-        this->results_file.close();
-    }
-
-    void generateResultsFile(KNNQueue& results) {
-        this->writeQueryResults(results);
-
-        this->results_file.close();
-    }
+//    void generateResultsFile(KNNQueue& results) {
+//        this->writeQueryResults(results);
+//
+//        this->results_file.close();
+//    }
 
     void writeQueryResults(KNNQueue& nearest_neighbors) {
         std::stack<Neighbor> neighbors;
@@ -91,10 +81,11 @@ public:
         }
 
         while (!neighbors.empty()) {
-            float* point = neighbors.top().point;
+//            float* point = neighbors.top().point;
 
             for (uint64_t i = 0; i < this->query_file_data->num_dimensions; ++i) {
-                this->results_file << point[i];
+//                this->results_file << (point[i]);
+                this->results_file.write(reinterpret_cast<const char*>(&(neighbors.top().point[i])), 4);
             }
 
             neighbors.pop();
