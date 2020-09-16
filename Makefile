@@ -1,4 +1,4 @@
-CFLAGS = -Wall -Wextra -pedantic -std=c++17 -pthread -O3 -flto
+CFLAGS = -Wall -Wextra -pedantic -std=c++14 -O3 -flto -faligned-new
 CDEBUGFLAGS = -g -DDEBUG
 CC = g++
 VFLAGS = --leak-check=full --track-origins=yes --show-leak-kinds=all -v
