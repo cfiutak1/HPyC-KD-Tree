@@ -1,7 +1,6 @@
 #include "KDTree.hpp"
-//#include "../quickselect/median_of_ninthers.h"
-
 #include "../adaptive_blockquickselect_colrow/adaptive_blockquickselect.hpp"
+
 #include <cstdio>
 #include <chrono>
 
@@ -28,19 +27,8 @@ void KDTree::buildTree(const uint64_t subarray_begin, const uint64_t subarray_en
     uint64_t median = range / 2;
 
     // Partition the current subarray around the median at the current dimension.
-    // TODO Can AQS be adjusted to cut down the need for subtraction operations here?
-//    auto build_start = std::chrono::steady_clock::now();
-//    adaptiveQuickselect<float*>(&(this->nodes[subarray_begin]), depth, median, subarray_end - subarray_begin);
     AdaptiveCacheAwareBlockquickselect qs(this->nodes, this->num_dimensions, depth);
     qs.nth_element(subarray_begin, subarray_end, median);
-//    auto build_end= std::chrono::steady_clock::now();
-//    std::chrono::duration<double> build_diff = (build_end - build_start);
-//    printf("Selecting median of %lu elements took %f seconds\n", subarray_end - subarray_begin, build_diff.count());
-
-//    std::swap(
-//        this->nodes[0][subarray_begin + median],
-//        this->nodes[depth][subarray_begin + median]
-//    );
 
     // Build left subtree (all elements left of the median)
     this->buildTree(subarray_begin, subarray_begin + median, (depth + 1) % this->num_dimensions);
