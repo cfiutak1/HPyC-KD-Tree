@@ -16,7 +16,7 @@ inline void KDTree::swap(std::size_t index1, std::size_t index2) {
 
 
 inline float* KDTree::pointAt(const std::size_t index) const {
-    float* point = new float[this->num_dimensions];
+    alignas(32) float* point = new float[this->num_dimensions];
 
     for (uint64_t i = 0; i < this->num_dimensions; ++i) {
         point[i] = this->nodes[i][index];
@@ -50,7 +50,7 @@ void KDTree::buildTree(const uint64_t subarray_begin, const uint64_t subarray_en
     uint64_t median = range / 2;
 
     // Partition the current subarray around the median at the current dimension.
-    AdaptiveCacheAwareBlockquickselect qs(this->nodes, this->num_dimensions, depth);
+    AdaptiveCacheAwareBlockquickselect<> qs(this->nodes, this->num_dimensions, depth);
     qs.nth_element(subarray_begin, subarray_end, median);
 
     // Build left subtree (all elements left of the median)
@@ -84,7 +84,7 @@ void KDTree::buildTreeBF(const uint64_t subarray_begin, const uint64_t subarray_
     uint64_t median = range / 2;
 
     // Partition the current subarray around the median at the current dimension.
-    AdaptiveCacheAwareBlockquickselect qs(this->nodes, this->num_dimensions, depth);
+    AdaptiveCacheAwareBlockquickselect<> qs(this->nodes, this->num_dimensions, depth);
     qs.nth_element(subarray_begin, subarray_end, median);
 
     this->swap(subarray_begin, subarray_begin + median);

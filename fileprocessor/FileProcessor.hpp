@@ -53,20 +53,20 @@ public:
     float** readPointsColRow() {
         float** points = new float*[this->file_data->num_dimensions];
 
-        for (auto i = 0; i < this->file_data->num_dimensions; ++i) {
+        for (uint64_t i = 0; i < this->file_data->num_dimensions; ++i) {
             points[i] = new float[this->file_data->num_points];
         }
 
 
         float* read_buffer = new float[this->file_data->num_dimensions];
 
-        for (auto i = 0; i < this->file_data->num_points; ++i) {
+        for (uint64_t i = 0; i < this->file_data->num_points; ++i) {
             this->input_stream.read(
                 (char*) read_buffer,
                 this->file_data->num_dimensions * sizeof(float)
             );
 
-            for (auto j = 0; j < this->file_data->num_dimensions; ++j) {
+            for (uint64_t j = 0; j < this->file_data->num_dimensions; ++j) {
                 points[j][i] = read_buffer[j];
             }
         }
