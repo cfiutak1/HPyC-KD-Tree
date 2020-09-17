@@ -5,21 +5,17 @@
 #include "../filedata/TrainingFileData.hpp"
 
 #include <cstdint>
-#include <vector>
-#include <cmath>
 
 
 class KDTree {
 private:
-    alignas(64) float** nodes;
+    alignas(32) float** nodes;
     uint64_t num_dimensions;
     uint64_t num_points;
 
     void buildTree(const uint64_t subarray_begin, const uint64_t subarray_end, unsigned int depth);
-    void buildTreeBF(const uint64_t subarray_begin, const uint64_t subarray_end, unsigned int depth);
 
     void nearestNeighborsSearch(const float* query_point, uint64_t begin, uint64_t end, uint64_t depth, KNNQueue& nearest_neighbors) const;
-    void nearestNeighborsSearchBF(const float* query_point, uint64_t begin, uint64_t end, uint64_t depth, KNNQueue& nearest_neighbors) const;
 
     inline float* pointAt(const std::size_t index) const;
     inline void swap(std::size_t index1, std::size_t index2);
@@ -34,7 +30,6 @@ public:
     }
 
     KNNQueue nearestNeighborsSearch(const float* query_point, const uint64_t& num_neighbors) const;
-    KNNQueue nearestNeighborsSearchBF(const float* query_point, const uint64_t& num_neighbors) const;
 };
 
 
