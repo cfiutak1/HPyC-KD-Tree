@@ -1,14 +1,13 @@
-#ifndef QUERYFILEPROCESSOR_HPP
-#define QUERYFILEPROCESSOR_HPP
-
 #include "FileProcessor.hpp"
 
 #include <string>
 
+#pragma once
+
 
 class QueryFileProcessor : public FileProcessor {
 public:
-    QueryFileProcessor(std::string file_name): FileProcessor(file_name) {}
+    explicit QueryFileProcessor(std::string file_name): FileProcessor(file_name) {}
 
     QueryFileData* readQueryFileHeader() {
         char file_type[8];
@@ -31,5 +30,3 @@ public:
         return static_cast<QueryFileData*>(this->file_data);
     }
 };
-
-#endif

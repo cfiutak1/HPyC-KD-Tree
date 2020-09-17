@@ -1,19 +1,15 @@
-#ifndef RESULTSFILEWRITER_HPP
-#define RESULTSFILEWRITER_HPP
-
-#include <fstream>
-#include <string>
-//#include <vector>
-//#include <string>
-//#include <map>
-#include <stack>
-
-
 #include "../kdtree_colrow/Neighbor.hpp"
 #include "../kdtree_colrow/KNNQueue.hpp"
 #include "../filedata/FileData.hpp"
 #include "../filedata/TrainingFileData.hpp"
 #include "../filedata/QueryFileData.hpp"
+
+#include <fstream>
+#include <string>
+#include <stack>
+
+
+
 
 
 class ResultsFileWriter {
@@ -84,5 +80,3 @@ public:
         }
     }
 };
-
-#endif

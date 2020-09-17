@@ -1,7 +1,6 @@
-#ifndef TRAININGFILEDATA_HPP
-#define TRAININGFILEDATA_HPP
-
 #include "FileData.hpp"
+
+#pragma once
 
 
 class TrainingFileData : public FileData {
@@ -10,5 +9,3 @@ public:
         FileData(file_id_in, num_points_in, num_dimensions_in)
     {}
 };
-
-#endif

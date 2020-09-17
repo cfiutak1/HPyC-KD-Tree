@@ -1,9 +1,9 @@
-#ifndef FILEPROCESSOR_HPP
-#define FILEPROCESSOR_HPP
+#include "../filedata/FileData.hpp"
 
 #include <string>
 #include <fstream>
-#include <vector>
+
+#pragma once
 
 
 class FileProcessor {
@@ -17,9 +17,11 @@ public:
         this->file_name = file_name;
     }
 
+
     void close() {
-        if (this->input_stream) this->input_stream.close();
+        if (this->input_stream) { this->input_stream.close(); }
     }
+
 
     float** readPoints() {
         uint64_t num_points = this->file_data->num_points;
@@ -28,12 +30,6 @@ public:
         for (uint64_t i = 0; i < num_points; i++) {
             if (this->input_stream) {
                 float* f = new float[this->file_data->num_dimensions];
-
-//                for (unsigned int j = 0; j < this->file_data->num_dimensions; ++j) {
-//                    printf("%lu ", &(f[j]));
-//                }
-//
-//                printf("\n");
 
                 this->input_stream.read(
                     (char*) f,
@@ -76,5 +72,3 @@ public:
         return points;
     }
 };
-
-#endif

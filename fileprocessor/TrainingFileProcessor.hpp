@@ -1,7 +1,6 @@
-#ifndef TRAININGFILEPROCESSOR_HPP
-#define TRAININGFILEPROCESSOR_HPP
-
 #include "FileProcessor.hpp"
+
+#pragma once
 
 class TrainingFileProcessor : public FileProcessor {
 public:
@@ -26,5 +25,3 @@ public:
         return static_cast<TrainingFileData*>(this->file_data);
     }
 };
-
-#endif

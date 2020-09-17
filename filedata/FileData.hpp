@@ -1,7 +1,6 @@
-#ifndef FILEDATA_HPP
-#define FILEDATA_HPP
-
 #include <cstdint>
+
+#pragma once
 
 
 class FileData {
@@ -18,5 +17,3 @@ public:
         num_dimensions(num_dimensions_in)
     {}
 };
-
-#endif
