@@ -3,9 +3,9 @@
 
 #include <fstream>
 #include <string>
-#include <vector>
-#include <string>
-#include <map>
+//#include <vector>
+//#include <string>
+//#include <map>
 #include <stack>
 
 
@@ -51,6 +51,7 @@ public:
 
     ~ResultsFileWriter() { this->results_file.close(); }
 
+
     void writeFileHeader() {
         char file_type[] = "RESULT\0\0";
         auto file_id = this->generateFileID();
@@ -64,12 +65,6 @@ public:
     }
 
 
-//    void generateResultsFile(KNNQueue& results) {
-//        this->writeQueryResults(results);
-//
-//        this->results_file.close();
-//    }
-
     void writeQueryResults(KNNQueue& nearest_neighbors) {
         std::stack<Neighbor> neighbors;
 
@@ -81,10 +76,7 @@ public:
         }
 
         while (!neighbors.empty()) {
-//            float* point = neighbors.top().point;
-
             for (uint64_t i = 0; i < this->query_file_data->num_dimensions; ++i) {
-//                this->results_file << (point[i]);
                 this->results_file.write(reinterpret_cast<const char*>(&(neighbors.top().point[i])), 4);
             }
 
