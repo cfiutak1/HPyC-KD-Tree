@@ -1,11 +1,10 @@
-#ifndef KNNQUEUE_HPP
-#define KNNQUEUE_HPP
-
 #include "Neighbor.hpp"
 
 #include <queue>
 #include <vector>
 #include <cstdint>
+
+#pragma once
 
 
 class KNNQueue {
@@ -13,7 +12,7 @@ private:
     const float* query_point;
     const uint64_t& num_neighbors;
     const uint64_t& num_dimensions;
-    // TODO make this const static again
+
     static constexpr NeighborComparator comp = {};
     std::priority_queue<Neighbor, std::vector<Neighbor>, NeighborComparator> nearest_neighbors;
 
@@ -41,5 +40,3 @@ public:
 
     bool registerAsNeighborIfCloser(float* potential_neighbor);
 };
-
-#endif

@@ -3,8 +3,8 @@
 #include "fileprocessor/QueryFileProcessor.hpp"
 #include "fileprocessor/TrainingFileProcessor.hpp"
 #include "filewriter/ResultsFileWriter.hpp"
-#include "kdtree_colrow/KDTree.hpp"
-#include "kdtree_colrow/KNNQueue.hpp"
+#include "kdtree/KDTree.hpp"
+#include "kdtree/KNNQueue.hpp"
 
 #include <cstdlib>
 #include <cstdio>

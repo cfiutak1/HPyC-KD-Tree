@@ -1,5 +1,5 @@
 #include "KDTree.hpp"
-#include "../adaptive_blockquickselect_colrow/adaptive_blockquickselect.hpp"
+#include "../quickselect/AdaptiveCacheAwareBlockquickselect.hpp"
 
 
 inline void KDTree::swap(std::size_t index1, std::size_t index2) {

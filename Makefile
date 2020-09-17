@@ -10,14 +10,14 @@ all: main.o KNNQueue.o KDTree.o
 main.o: main.cpp
 	$(CC) $(CFLAGS) -c main.cpp
 
-KDTree.o: kdtree_colrow/KDTree.cpp kdtree_colrow/KDTree.hpp
-	$(CC) $(CFLAGS) -c kdtree_colrow/KDTree.cpp
+KDTree.o: kdtree kdtree
+	$(CC) $(CFLAGS) -c kdtree/KDTree.cpp
 
-KNNQueue.o: kdtree_colrow/KNNQueue.cpp kdtree_colrow/KNNQueue.hpp
-	$(CC) $(CFLAGS) -c kdtree_colrow/KNNQueue.cpp
+KNNQueue.o: kdtree kdtree
+	$(CC) $(CFLAGS) -c kdtree/KNNQueue.cpp
 
-KNNSearcher.o: kdtree_colrow/KNNSearcher.cpp kdtree_colrow/KNNSearcher.hpp
-	$(CC) $(CFLAGS) -c kdtree_colrow/KNNSearcher.cpp
+KNNSearcher.o: kdtree kdtree
+	$(CC) $(CFLAGS) -c kdtree/KNNSearcher.cpp
 
 KNNSingleQuerySearcher.o: singlequerysearcher/KNNSingleQuerySearcher.cpp singlequerysearcher/KNNSingleQuerySearcher.hpp
 	$(CC) $(CFLAGS) -c singlequerysearcher/KNNSingleQuerySearcher.cpp

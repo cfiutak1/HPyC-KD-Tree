@@ -1,5 +1,5 @@
-#include "../kdtree_colrow/Neighbor.hpp"
-#include "../kdtree_colrow/KNNQueue.hpp"
+#include "../kdtree/Neighbor.hpp"
+#include "../kdtree/KNNQueue.hpp"
 #include "../filedata/FileData.hpp"
 #include "../filedata/TrainingFileData.hpp"
 #include "../filedata/QueryFileData.hpp"
