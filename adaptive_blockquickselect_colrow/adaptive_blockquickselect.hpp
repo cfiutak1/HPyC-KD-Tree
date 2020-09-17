@@ -23,21 +23,14 @@ public:
         depth(depth_in)
     {}
 
-//    inline float* nodeAt(const uint64_t node_index) const {
-////        printf("%s:%d fetching node at pos %lu\n", __FILE__, __LINE__, (node_index * this->num_dimensions));
-//        return this->nodes + (node_index * this->num_dimensions);
-//    }
 
     inline float& cellAt(const std::size_t index) const {
         return this->nodes[this->depth][index];
     }
 
-//    inline float& nodeAtPos(const std::size_t index) const {
-//        return this->nodes[this->depth][index];
-//    }
 
     inline void swap(const std::size_t index1, const std::size_t index2) {
-        for (auto i = 0; i < this->num_dimensions; ++i) {
+        for (uint64_t i = 0; i < this->num_dimensions; ++i) {
             std::swap(
                 this->nodes[i][index1],
                 this->nodes[i][index2]
@@ -45,11 +38,13 @@ public:
         }
     }
 
+
     inline void compareAndSwap(const std::size_t index1, const std::size_t index2) {
         if (this->cellAt(index2) < this->cellAt(index1)) {
             this->swap(index1, index2);
         }
     }
+
 
     /*
      * Sorting network for an input of size 3. Sorts the first, middle, and final items of the array, then places the
@@ -66,6 +61,7 @@ public:
 
         return begin + 1;
     }
+
 
     /*
      * Somewhat naive implementation of block partition that handles two cases:
@@ -167,6 +163,7 @@ public:
         return unpartitioned_range_begin - 1;
     }
 
+
     /*
      * Delegator function for the above definition of dynamicBlockPartition(). Dynamically allocates buffers based on the
      * chunk size. Called by the partition delegator when the size of the array to partition is too small for
@@ -229,7 +226,7 @@ public:
                 }
             }
 
-                // If only the left bucket is empty, fill it.
+            // If only the left bucket is empty, fill it.
             else if (left_buffer_size == 0) {
                 for (std::size_t i = 0; i < BlockSize; ) {
                     for (std::size_t j = 0; j < ItemsPerCacheLine; ++j) {
@@ -240,7 +237,7 @@ public:
                 }
             }
 
-                // If only the right bucket is empty, fill it.
+            // If only the right bucket is empty, fill it.
             else if (right_buffer_size == 0) {
                 for (std::size_t i = 0; i < BlockSize; ) {
                     for (std::size_t j = 0; j < ItemsPerCacheLine; ++j) {
@@ -314,12 +311,9 @@ public:
         std::size_t chunk_size = end - begin;
         std::size_t sample_size = sqrt(chunk_size);
 
-//        printf("%s:%d chunk_size=%lu sample_size=%lu\n", __FILE__, __LINE__, chunk_size, sample_size);
-
         // If the sample size is smaller than the threshold for adaptive sampling, fall back to median of 3 pivot selection
         // and use dynamic block partitioning.
         if (sample_size < AdaptiveSampleThreshold) {
-//            printf("%s:%d\n", __FILE__, __LINE__);
             std::size_t pivot = medianOf3(begin, end);
 
             return dynamicBlockPartition(pivot, begin + 2, end - 2);
@@ -329,7 +323,6 @@ public:
         // chosen to be the pivot. The pivot position is determined by the size of k relative to the size of the chunk to partition.
         float pivot_ratio = float(k) / chunk_size;
         std::size_t pivot_pos = pivot_ratio * sample_size;
-//        printf("%s:%d pivot_pos=%lu, sample_size=%lu\n", __FILE__, __LINE__, pivot_pos, sample_size);
 
         // If the pivot position is large enough to make it viable, adjust the pivot position so that the pivot position is
         // the closest power of ItemsPerCacheLine, minus 1. The sample size is also adjusted to maintain the original
@@ -351,15 +344,11 @@ public:
             if (pivot_pos <= offset) { pivot_pos += (ItemsPerCacheLine - offset); }
             else { pivot_pos -= offset; }
 
-//            printf("%s:%d pivot_pos=%lu, sample_size=%lu\n", __FILE__, __LINE__, pivot_pos, sample_size);
-
             // Adjust the sample size based on changes to the pivot position.
             if (pivot_pos > 0) {
                 sample_size = std::ceil(float(pivot_pos) / pivot_ratio);
             }
         }
-
-//        printf("%s:%d pivot_pos=%lu, sample_size=%lu\n", __FILE__, __LINE__, pivot_pos, sample_size);
 
         // Use the beginning and end of (sample size / 2) cache lines as the samples.
         for (std::size_t i = 0; i < (sample_size >> 1); ++i) {
@@ -368,25 +357,19 @@ public:
         }
 
         // If the sample size is odd, we'll just be lazy and use whatever value is already at begin + sample_size - 1. It's random enough.
-//        float* pivot = begin + pivot_pos;
+
 
         // Find the pivot_pos-th element of the sampled items.
-//        printf("%s:%d calling nth_element begin=%lu end=%lu nth=%lu\n", __FILE__, __LINE__, begin, begin + sample_size, pivot_pos);
         nth_element(begin, begin + sample_size, pivot_pos);
 
         // Swap all items in the sample slice that are !comp() to the pivot with items at the end of the chunk.
-//        std::swap_ranges(pivot + 1, begin + sample_size, end - (sample_size - pivot_pos) + 1);
-//        printf("%s:%d %lu %lu %lu\n", __FILE__, __LINE__, begin + pivot_pos + 1, begin + sample_size, end - (sample_size - pivot_pos) + 1);
-//        std::swap_ranges(this->nodeAt(begin + pivot_pos + 1), this->nodeAt(begin + sample_size), this->nodeAt(end - (sample_size - pivot_pos) + 1));
-
-        for (auto i = 0; i < this->num_dimensions; ++i) {
+        for (uint64_t i = 0; i < this->num_dimensions; ++i) {
             std::swap_ranges(
                 this->nodes[i] + (begin + pivot_pos + 1),
                 this->nodes[i] + (begin + sample_size),
                 this->nodes[i] + (end - (sample_size - pivot_pos) + 1)
             );
         }
-
 
         // Partition items between [pivot + 1, !comp() mini partition begin)
         if ((end - begin) - sample_size > (BlockSize << 1u)) {
@@ -399,35 +382,17 @@ public:
     }
 
 
-    // TODO refactor to match signature of std::nth_element
     /*
      * Standard quickselect loop. Narrows the range of items until it finds the nth_element.
      */
     void nth_element(std::size_t begin, std::size_t end, std::size_t n) {
         std::size_t offset = 0;
 
-
         while (true) {
-//            assert (begin <= end);
-//            printf("%s:%d %lu %lu %lu\n", __FILE__, __LINE__, begin, end, n);
-//
-//            printf("%s:%d ", __FILE__, __LINE__);
-//
-//            for (long j = 0; j < end - begin; ++j) {
-//                printf("[");
-//                for (long k = 0; k < num_dimensions; k++) {
-//                    printf("%f ", nodes[(j * num_dimensions) + k]);
-//                }
-//                printf("], ");
-//            }
-//
-//
-//            printf("\n");
-            if (begin == end) return;
+            if (begin == end) { return; }
 
             // If we're looking for the smallest item in the array, find it and move it to the beginning.
             if (n == 0) {
-//                printf("%s:%d\n", __FILE__, __LINE__);
                 std::size_t min_node_pos = begin;
 
                 for (std::size_t i = begin + 1; i < end; ++i) {
@@ -443,41 +408,24 @@ public:
 
             // If we're looking for the largest item in the array, find it and move it to the last item's position.
             else if (n == end - begin - 1) {
-//                printf("%s:%d\n", __FILE__, __LINE__);
                 std::size_t max_node_pos = begin;
 
                 for (std::size_t i = begin + 1; i < end; ++i) {
                     if (this->cellAt(i) > this->cellAt(max_node_pos)) {
-//                        printf("%s:%d %f is new max\n", __FILE__, __LINE__, this->cellAt(i));
                         max_node_pos = i;
                     }
                 }
 
                 this->swap(end - 1, max_node_pos);
 
-//                printf("%s:%d ", __FILE__, __LINE__);
-
-//                for (long j = 0; j < end - begin; ++j) {
-//                    printf("[");
-//                    for (long k = 0; k < num_dimensions; k++) {
-//                        printf("%f ", nodes[(j * num_dimensions) + k]);
-//                    }
-//                    printf("], ");
-//                }
-
                 return;
             }
 
             std::size_t pivot = selectPivotAndPartitionArray(begin, end, n, offset);
 
-//            printf("%s:%d %lu %lu %lu\n", __FILE__, __LINE__, begin, end, n);
-//            printf("%s:%d pivot=%lu\n", __FILE__, __LINE__, pivot);
-
-            if (pivot - begin == n) return;
+            if (pivot - begin == n) { return; }
 
             bool n_is_smaller = n < static_cast<std::size_t>(pivot - begin);
-
-
 
             // If the nth_element is smaller than the pivot's position, set the new search range to [begin, pivot).
             end -= ((end - pivot) & (0 - (n_is_smaller)));
@@ -487,21 +435,6 @@ public:
             offset += ((pivot - begin + 1) & (0 - (!n_is_smaller)));
             offset &= (ItemsPerCacheLine - 1);
             begin += ((pivot - begin + 1) & (0 - (!n_is_smaller)));
-
-//            printf("%s:%d %lu %lu %lu\n", __FILE__, __LINE__, begin, end, n);
         }
     }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
