@@ -1,6 +1,8 @@
 #include "KDTree.hpp"
 #include "../quickselect/AdaptiveCacheAwareBlockquickselect.hpp"
 
+#include <thread>
+
 
 inline void KDTree::swap(std::size_t index1, std::size_t index2) {
     for (std::size_t i = 0; i < this->num_dimensions; ++i) {
@@ -54,6 +56,49 @@ void KDTree::buildTree(const uint64_t subarray_begin, const uint64_t subarray_en
 
 
 /*
+ * Private method that restructures the array given to the constructor to a well-balanced KD-Tree.
+ */
+void KDTree::buildTreeParallel(const uint64_t subarray_begin, const uint64_t subarray_end, unsigned int depth, unsigned int num_threads) {
+    uint64_t range = subarray_end - subarray_begin;
+
+    // Base case - If there is one element left, it is already sorted and thus in its correct position.
+    if (range == 1) { return; }
+
+    // Base case - If there are two elements left, they will be in their correct positions if they are sorted.
+    else if (range == 2) {
+        if (this->nodes[depth][subarray_begin] > this->nodes[depth][subarray_begin + 1]) {
+            this->swap(subarray_begin, subarray_begin + 1);
+        }
+
+        return;
+    }
+
+    // Partition the current subarray around the median at the current dimension.
+    AdaptiveCacheAwareBlockquickselect<> qs(this->nodes, this->num_dimensions, depth);
+    qs.nth_element(subarray_begin, subarray_end, (range >> 1u));
+
+    if (num_threads > 0) {
+        --num_threads;
+
+        std::thread right_thread(&KDTree::buildTreeParallel, this, subarray_begin + (range >> 1u) + 1, subarray_end, (depth + 1) % this->num_dimensions, num_threads - (num_threads / 2));
+
+        // Build left subtree (all elements left of the median)
+        this->buildTreeParallel(subarray_begin, subarray_begin + (range >> 1u), (depth + 1) % this->num_dimensions, num_threads / 2);
+
+        right_thread.join();
+
+        return;
+    }
+
+    // Build left subtree (all elements left of the median)
+    this->buildTree(subarray_begin, subarray_begin + (range >> 1u), (depth + 1) % this->num_dimensions);
+
+    // Build right subtree (all elements right of the median)
+    this->buildTree(subarray_begin + (range >> 1u) + 1, subarray_end, (depth + 1) % this->num_dimensions);
+}
+
+
+/*
  * Public method that returns a priority queue containing the K nearest neighbors to a given query point. Serves as a
  * wrapper for the private recursive nearestNeighborsSearch().
  */
@@ -72,8 +117,6 @@ KNNQueue KDTree::nearestNeighborsSearch(const float* query_point, const uint64_t
 void KDTree::nearestNeighborsSearch(const float* query_point, uint64_t begin, uint64_t end, uint64_t depth, KNNQueue& nearest_neighbors) const {
     uint64_t range = end - begin;
     uint64_t traverser_index = begin + (range >> 1u);
-
-//    float* current_point = this->pointAt(traverser_index);
 
     nearest_neighbors.registerAsNeighborIfCloser(this->pointAt(traverser_index));
 
