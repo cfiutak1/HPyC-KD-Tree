@@ -93,7 +93,7 @@ int main(int argc, char** argv) {
 
     else {
         printf("%s:%d %u\n", __FILE__, __LINE__, num_threads);
-        KNNQueue* results = tree->processQueriesParallel(query_points, query_file_data->num_points, query_file_data->num_neighbors, num_threads);
+        KNNQueue* results = tree->processQueriesParallel(query_points, query_file_data->num_points, query_file_data->num_neighbors, num_threads + 1);
 
         for (uint64_t i = 0; i < query_file_data->num_points; ++i) {
             writer.writeQueryResults(results[i]);
