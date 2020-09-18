@@ -10,15 +10,15 @@
 class KNNQueue {
 private:
     const float* query_point;
-    const uint64_t& num_neighbors;
-    const uint64_t& num_dimensions;
+    uint64_t num_neighbors;
+    uint64_t num_dimensions;
 
     std::priority_queue<Neighbor, std::vector<Neighbor>, NeighborComparator> nearest_neighbors;
 
     bool closerThanFarthestNeighbor(const double& p) const;
 
 public:
-    KNNQueue() = delete;
+    KNNQueue() {}
 
     KNNQueue(const float* query_point_in, const uint64_t& num_neighbors_in, const uint64_t& num_dimensions_in):
         query_point(query_point_in),

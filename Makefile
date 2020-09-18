@@ -1,4 +1,4 @@
-CFLAGS = -Wall -Wextra -pedantic -std=c++14 -flto -faligned-new -pthread -O3
+CFLAGS = -Wall -Wextra -pedantic -std=c++14 -flto -faligned-new -pthread -O3 -fopenmp
 CDEBUGFLAGS = -g -DDEBUG
 CC = g++
 VFLAGS = --leak-check=full --track-origins=yes --show-leak-kinds=all -v
@@ -23,7 +23,7 @@ SingleQueryWorker.o: singlequerysearcher/SingleQueryWorker.cpp singlequerysearch
 	$(CC) $(CFLAGS) -c singlequerysearcher/SingleQueryWorker.cpp
 
 run: all
-	./program2 1 data/training_10000000_5.dat data/query_100000_5_10.dat results.out
+	./program2 8 data/training_10000000_5.dat data/query_100000_5_10.dat results.out
 
 memcheck: all
 	valgrind $(VFLAGS) ./program2 1 data/training_1000_3.dat data/query_17231658.dat results_memcheck.out

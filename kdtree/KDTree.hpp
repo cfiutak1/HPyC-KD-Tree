@@ -39,6 +39,7 @@ public:
     }
 
     KNNQueue nearestNeighborsSearch(const float* query_point, const uint64_t& num_neighbors) const;
+    KNNQueue* processQueriesParallel(float** query_points, const uint64_t num_queries, const uint64_t num_neighbors, unsigned int num_threads) const;
 };
 
 

@@ -83,10 +83,25 @@ int main(int argc, char** argv) {
 
     writer.writeFileHeader();
 
-    for (unsigned long i = 0; i < query_file_data->num_points; ++i) {
-        KNNQueue results = tree->nearestNeighborsSearch(query_points[i], query_file_data->num_neighbors);
-        writer.writeQueryResults(results);
+    if (num_threads == 0) {
+        printf("%s:%d\n", __FILE__, __LINE__);
+        for (unsigned long i = 0; i < query_file_data->num_points; ++i) {
+            KNNQueue results = tree->nearestNeighborsSearch(query_points[i], query_file_data->num_neighbors);
+            writer.writeQueryResults(results);
+        }
     }
+
+    else {
+        printf("%s:%d %u\n", __FILE__, __LINE__, num_threads);
+        KNNQueue* results = tree->processQueriesParallel(query_points, query_file_data->num_points, query_file_data->num_neighbors, num_threads);
+
+        for (uint64_t i = 0; i < query_file_data->num_points; ++i) {
+            writer.writeQueryResults(results[i]);
+        }
+
+        delete[] results;
+    }
+
 
     auto query_and_file_out_end = std::chrono::steady_clock::now();
     std::chrono::duration<double> query_and_file_out_diff = (query_and_file_out_end - query_and_file_out_start);

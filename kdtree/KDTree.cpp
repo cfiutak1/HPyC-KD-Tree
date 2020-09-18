@@ -2,6 +2,7 @@
 #include "../quickselect/AdaptiveCacheAwareBlockquickselect.hpp"
 
 #include <thread>
+#include "omp.h"
 
 
 inline void KDTree::swap(std::size_t index1, std::size_t index2) {
@@ -108,6 +109,22 @@ KNNQueue KDTree::nearestNeighborsSearch(const float* query_point, const uint64_t
     this->nearestNeighborsSearch(query_point, 0, this->num_points, 0, queue);
 
     return queue;
+}
+
+
+
+KNNQueue* KDTree::processQueriesParallel(float** query_points, const uint64_t num_queries, const uint64_t num_neighbors, unsigned int num_threads_in) const {
+    KNNQueue* results = new KNNQueue[num_queries];
+
+    #pragma omp parallel for shared(results) num_threads(num_threads_in) schedule(static)
+    for (uint64_t i = 0; i < num_queries; ++i) {
+        KNNQueue queue(query_points[i], num_neighbors, this->num_dimensions);
+        this->nearestNeighborsSearch(query_points[i], 0, this->num_points, 0, queue);
+        results[i] = queue;
+    }
+
+
+    return results;
 }
 
 
