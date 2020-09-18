@@ -1,4 +1,4 @@
-CFLAGS = -Wall -Wextra -pedantic -std=c++14 -O3 -flto -faligned-new
+CFLAGS = -Wall -Wextra -pedantic -std=c++14 -flto -faligned-new -pthread -O3
 CDEBUGFLAGS = -g -DDEBUG
 CC = g++
 VFLAGS = --leak-check=full --track-origins=yes --show-leak-kinds=all -v
@@ -10,14 +10,11 @@ all: main.o KNNQueue.o KDTree.o
 main.o: main.cpp
 	$(CC) $(CFLAGS) -c main.cpp
 
-KDTree.o: kdtree kdtree
+KDTree.o: kdtree/KDTree.hpp kdtree/KDTree.cpp
 	$(CC) $(CFLAGS) -c kdtree/KDTree.cpp
 
-KNNQueue.o: kdtree kdtree
+KNNQueue.o: kdtree/KNNQueue.hpp kdtree/KNNQueue.cpp
 	$(CC) $(CFLAGS) -c kdtree/KNNQueue.cpp
-
-KNNSearcher.o: kdtree kdtree
-	$(CC) $(CFLAGS) -c kdtree/KNNSearcher.cpp
 
 KNNSingleQuerySearcher.o: singlequerysearcher/KNNSingleQuerySearcher.cpp singlequerysearcher/KNNSingleQuerySearcher.hpp
 	$(CC) $(CFLAGS) -c singlequerysearcher/KNNSingleQuerySearcher.cpp
@@ -29,11 +26,10 @@ run: all
 	./program2 1 data/training_10000000_5.dat data/query_100000_5_10.dat results.out
 
 memcheck: all
-	valgrind $(VFLAGS) ./program2 4 data/training_300_5.dat data/query_1_5_3.dat results.out
+	valgrind $(VFLAGS) ./program2 1 data/training_1000_3.dat data/query_17231658.dat results_memcheck.out
 
 clean:
 	rm *.o program2 results.out
-
 
 performance_test: all
 	for i in 1 2 3 4 5 6 7 8 9 10; do \

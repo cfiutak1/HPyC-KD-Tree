@@ -44,11 +44,13 @@ bool KNNQueue::registerAsNeighborIfCloser(float* potential_neighbor) {
     // If the priority queue is at capacity and the potential neighbor is closer to the query point than the current
     // furthest neighbor, remove the furthest neighbor from the priority queue and push the potential neighbor.
     if (this->closerThanFarthestNeighbor(distance)) {
-        this->nearest_neighbors.pop();
+        this->replaceFarthestNeighbor();
         this->nearest_neighbors.push(Neighbor(potential_neighbor, distance));
 
         return true;
     }
+
+    delete[] potential_neighbor;
 
     return false;
 }

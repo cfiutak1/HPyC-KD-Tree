@@ -72,11 +72,14 @@ public:
         }
 
         while (!neighbors.empty()) {
+            float* point = neighbors.top().point;
             for (uint64_t i = 0; i < this->query_file_data->num_dimensions; ++i) {
-                this->results_file.write(reinterpret_cast<const char*>(&(neighbors.top().point[i])), 4);
+                this->results_file.write(reinterpret_cast<const char*>(&(point[i])), 4);
             }
 
             neighbors.pop();
+
+            delete[] point;
         }
     }
 };

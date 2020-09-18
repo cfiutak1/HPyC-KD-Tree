@@ -62,7 +62,9 @@ int main(int argc, char** argv) {
     alignas(32) float** training_points = training_file_processor.readPointsColRow();
 
     auto build_start = std::chrono::steady_clock::now();
-    KDTree* tree = new KDTree(training_points, training_file_data->num_points, training_file_data->num_dimensions);
+//    KDTree* tree = new KDTree(training_points, training_file_data->num_points, training_file_data->num_dimensions);
+
+    KDTree* tree = new KDTree(training_points, training_file_data->num_points, training_file_data->num_dimensions, num_threads);
 
     auto file_read_and_build_end = std::chrono::steady_clock::now();
     auto build_end = std::chrono::steady_clock::now();
@@ -90,6 +92,19 @@ int main(int argc, char** argv) {
     std::chrono::duration<double> query_and_file_out_diff = (query_and_file_out_end - query_and_file_out_start);
     printf("query_and_file_out %f\n", query_and_file_out_diff.count());
 
+    for (uint64_t i = 0; i < training_file_data->num_dimensions; ++i) {
+        delete[] training_points[i];
+    }
+
+    for (uint64_t i = 0; i < query_file_data->num_points; ++i) {
+        delete[] query_points[i];
+    }
+
+
+    delete[] training_points;
+    delete[] query_points;
+
     delete tree;
     delete training_file_data;
+    delete query_file_data;
 }
