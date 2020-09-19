@@ -1,4 +1,4 @@
-#include "../kdtree/Neighbor.hpp"
+//#include "../kdtree/Neighbor.hpp"
 #include "../kdtree/KNNQueue.hpp"
 #include "../filedata/FileData.hpp"
 #include "../filedata/TrainingFileData.hpp"
