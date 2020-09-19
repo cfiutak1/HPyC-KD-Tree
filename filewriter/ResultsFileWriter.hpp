@@ -1,5 +1,6 @@
 //#include "../kdtree/Neighbor.hpp"
 #include "../kdtree/KNNQueue.hpp"
+#include "../parallel_kdtree/ThreadSafeKNNQueue.hpp"
 #include "../filedata/FileData.hpp"
 #include "../filedata/TrainingFileData.hpp"
 #include "../filedata/QueryFileData.hpp"
@@ -69,6 +70,28 @@ public:
         while (!nearest_neighbors.empty()) {
             neighbors.push(nearest_neighbors.top());
             nearest_neighbors.pop();
+        }
+
+        while (!neighbors.empty()) {
+            float* point = neighbors.top().point;
+            for (uint64_t i = 0; i < this->query_file_data->num_dimensions; ++i) {
+                this->results_file.write(reinterpret_cast<const char*>(&(point[i])), 4);
+            }
+
+            neighbors.pop();
+
+            delete[] point;
+        }
+    }
+
+    void writeQueryResults(ThreadSafeKNNQueue& nearest_neighbors) {
+        std::stack<Neighbor> neighbors;
+
+        // Furthest neighbor is at the top of the stack, so we need to send the neighbors to another stack to make
+        // them sorted in ascending distance.
+        while (!nearest_neighbors.queue.empty()) {
+            neighbors.push(nearest_neighbors.queue.top());
+            nearest_neighbors.queue.pop();
         }
 
         while (!neighbors.empty()) {

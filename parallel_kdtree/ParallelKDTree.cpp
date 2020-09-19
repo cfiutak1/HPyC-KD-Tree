@@ -80,6 +80,8 @@ void ParallelKDTree::nearestNeighborsSearchTS(const float* query_point, uint64_t
     uint64_t range = end - begin;
     uint64_t traverser_index = begin + (range >> 1u);
 
+    //printf("%s:%d spawned_threads=%d joined_threads=%d\n", __FILE__, __LINE__, spawned_threads.load(), joined_threads.load());
+
     nearest_neighbors.registerAsNeighborIfEligible(this->tree->pointAt(traverser_index));
 
     // Base case - If there's one element left, it has already been tested so stop recursing.
@@ -92,26 +94,38 @@ void ParallelKDTree::nearestNeighborsSearchTS(const float* query_point, uint64_t
         return;
     }
 
+
+
     float query_at_current_dimension = query_point[depth];
     float traverser_at_current_dimension = this->tree->nodes[depth][traverser_index];
     float difference_at_current_dimension = traverser_at_current_dimension - query_at_current_dimension;
     float distance_from_query_at_current_dimension = difference_at_current_dimension * difference_at_current_dimension;
+
+    int thread_id = this->available_threads.fetch_sub(1);
 
     // If the query is less than the traverser at the current dimension,
     //     1. Traverse down the left subtree.
     //     2. After fully traversing the left subtree, determine if the right subtree can possibly have a closer neighbor.
     //     3. If the right subtree is not viable, return. Otherwise, traverse the right subtree.
     if (query_at_current_dimension < traverser_at_current_dimension) {
-        if (this->available_threads.fetch_sub(1) > 0) {
+        //printf("%s:%d available_threads=%d\n", __FILE__, __LINE__, available_threads.load());
+        if (thread_id > 0) {
+            //printf("%s:%d available_threads=%d\n", __FILE__, __LINE__, available_threads.load());
+
             std::thread left_thread(&ParallelKDTree::nearestNeighborsSearchTS, this, query_point, begin, traverser_index, (depth + 1) % this->tree->num_dimensions, num_neighbors);
 
             double farthest_neighbor_distance = nearest_neighbors.queue.top().distance_from_queried_point;
 
-            if (farthest_neighbor_distance < distance_from_query_at_current_dimension) { return; }
+            if (farthest_neighbor_distance < distance_from_query_at_current_dimension) {
+                left_thread.join();
+                ++this->available_threads;
+                return;
+            }
 
             this->nearestNeighborsSearchTS(query_point, traverser_index + 1, end, (depth + 1) % this->tree->num_dimensions, num_neighbors);
             left_thread.join();
             ++this->available_threads;
+
         }
 
         else {
@@ -131,16 +145,24 @@ void ParallelKDTree::nearestNeighborsSearchTS(const float* query_point, uint64_t
         //     2. After fully traversing the right subtree, determine if the left subtree can possibly have a closer neighbor.
         //     3. If the left subtree is not viable, return. Otherwise, traverse the left subtree.
     else {
-        if (this->available_threads.fetch_sub(1) > 0) {
+        //printf("%s:%d available_threads=%d\n", __FILE__, __LINE__, available_threads.load());
+        if (thread_id > 0) {
+//            //printf("%s:%d\n", __FILE__, __LINE__, );
+//            ++spawned_threads;
             std::thread left_thread(&ParallelKDTree::nearestNeighborsSearchTS, this, query_point, traverser_index + 1, end, (depth + 1) % this->tree->num_dimensions, num_neighbors);
 
             double farthest_neighbor_distance = this->nearest_neighbors.queue.top().distance_from_queried_point;
 
-            if (farthest_neighbor_distance < distance_from_query_at_current_dimension) { return; }
+            if (farthest_neighbor_distance < distance_from_query_at_current_dimension) {
+                left_thread.join();
+                ++this->available_threads;
+                return;
+            }
 
             this->nearestNeighborsSearchTS(query_point, begin, traverser_index, (depth + 1) % this->tree->num_dimensions, num_neighbors);
             left_thread.join();
             ++this->available_threads;
+//            ++joined_threads;
         }
 
         else {

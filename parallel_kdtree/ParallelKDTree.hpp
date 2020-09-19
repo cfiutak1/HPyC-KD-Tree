@@ -10,12 +10,12 @@
 class ParallelKDTree {
 private:
     KDTree* tree;
-    std::atomic<int> available_threads;
+    std::atomic<int> available_threads{};
     ThreadSafeKNNQueue nearest_neighbors;
 
     void buildTree(const uint64_t subarray_begin, const uint64_t subarray_end, unsigned int depth, unsigned int num_threads);
 
-    void nearestNeighborsSearchTS(const float* query_point, uint64_t begin, uint64_t end, const uint64_t depth, const uint64_t num_neighbors);
+    void nearestNeighborsSearchTS(const float* query_point, uint64_t begin, uint64_t end, const uint64_t depth, const uint64_t num_neighborsd);
 
 
 public:

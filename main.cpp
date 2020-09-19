@@ -109,6 +109,12 @@ void runMultiThreaded(TrainingFileProcessor& training_file_processor, QueryFileP
         writer.writeQueryResults(results[i]);
     }
 
+
+//    for (uint64_t i = 0; i < query_file_data->num_points; ++i) {
+//        ThreadSafeKNNQueue result = tree->nearestNeighborsSearch(query_points[i], query_file_data->num_neighbors);
+//        writer.writeQueryResults(result);
+//    }
+
     auto query_and_file_out_end = std::chrono::steady_clock::now();
     std::chrono::duration<double> query_and_file_out_diff = (query_and_file_out_end - query_and_file_out_start);
     printf("query_and_file_out %f\n", query_and_file_out_diff.count());

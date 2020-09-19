@@ -16,12 +16,12 @@ private:
     uint64_t num_neighbors;
     uint64_t num_dimensions;
 
-    KNNQueue queue;
-
     std::mutex mtx;
 
 
 public:
+    KNNQueue queue;
+
     ThreadSafeKNNQueue() = default;
 
     ThreadSafeKNNQueue(const float* query_point_in, const uint64_t& num_neighbors_in, const uint64_t& num_dimensions_in):
@@ -69,6 +69,8 @@ public:
 
             return true;
         }
+
+        this->mtx.unlock();
 
         delete[] potential_neighbor;
 
