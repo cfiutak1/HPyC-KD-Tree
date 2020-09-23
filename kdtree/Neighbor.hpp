@@ -16,9 +16,9 @@ public:
 };
 
 
-class NeighborComparator {
+class CloserNeighborComparator {
 public:
-    NeighborComparator() = default;
+    CloserNeighborComparator() = default;
 
     bool operator()(const Neighbor& n1, const Neighbor& n2) {
         return n1.distance_from_queried_point < n2.distance_from_queried_point;

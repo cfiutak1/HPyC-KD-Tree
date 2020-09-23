@@ -10,12 +10,15 @@
 class ParallelKDTree {
 private:
     KDTree* tree;
-    std::atomic<int> available_threads{};
-    ThreadSafeKNNQueue nearest_neighbors;
+    std::atomic<int> spawned_threads{};
+    int thread_limit;
+    KNNQueue* nearest_neighbors;
 
     void buildTree(const uint64_t subarray_begin, const uint64_t subarray_end, unsigned int depth, unsigned int num_threads);
 
-    void nearestNeighborsSearchTS(const float* query_point, uint64_t begin, uint64_t end, const uint64_t depth, const uint64_t num_neighborsd);
+    inline bool isPotentiallyEligible(const float* query_point, const float* current_point, int thread_id) const;
+
+    void nearestNeighborsSearchTS(const float* query_point, uint64_t begin, uint64_t end, const uint64_t depth, const uint64_t num_neighbors, int thread_id);
 
 
 public:
@@ -25,7 +28,7 @@ public:
         this->tree->nodes = nodes_in;
         this->tree->num_points = num_points_in;
         this->tree->num_dimensions = num_dimensions_in;
-        this->available_threads = num_threads_in;
+        this->thread_limit = num_threads_in;
 
         this->buildTree(0, num_points_in, 0, num_threads_in);
     }
@@ -36,6 +39,6 @@ public:
 
     KNNQueue* nearestNeighborsSearches(float** query_points, const uint64_t num_queries, const uint64_t num_neighbors, unsigned int num_threads) const;
 
-    ThreadSafeKNNQueue nearestNeighborsSearch(const float* query_point, const uint64_t num_neighbors);
+    KNNQueue* nearestNeighborsSearch(const float* query_point, const uint64_t num_neighbors);
 
 };

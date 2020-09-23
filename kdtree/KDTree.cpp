@@ -41,6 +41,8 @@ KNNQueue KDTree::nearestNeighborsSearch(const float* query_point, const uint64_t
 
     this->nearestNeighborsSearch(query_point, 0, this->num_points, 0, queue);
 
+    queue.validate();
+
     return queue;
 }
 

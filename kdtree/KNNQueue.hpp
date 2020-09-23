@@ -11,21 +11,15 @@ public:
     float* point;
     double distance_from_queried_point;
 
-    Neighbor() = delete;
+    Neighbor() = default;
 
     Neighbor(float* point_in, double distance_from_queried_point_in):
             point(point_in),
             distance_from_queried_point(distance_from_queried_point_in)
     {}
-};
 
-
-class NeighborComparator {
-public:
-    NeighborComparator() = default;
-
-    bool operator()(const Neighbor& n1, const Neighbor& n2) {
-        return n1.distance_from_queried_point < n2.distance_from_queried_point;
+    bool operator < (const Neighbor& n) const {
+        return this->distance_from_queried_point < n.distance_from_queried_point;
     }
 };
 
@@ -50,7 +44,9 @@ private:
     const float* query_point;
     uint64_t num_neighbors;
     uint64_t num_dimensions;
-    std::priority_queue<Neighbor, std::vector<Neighbor>, NeighborComparator> nearest_neighbors;
+    std::size_t current_size = 0;
+    Neighbor* array;
+//    std::priority_queue<Neighbor, std::vector<Neighbor>> nearest_neighbors;
 
     friend class ThreadSafeKNNQueue;
 
@@ -64,35 +60,53 @@ public:
     KNNQueue(const float* query_point_in, const uint64_t& num_neighbors_in, const uint64_t& num_dimensions_in):
         query_point(query_point_in),
         num_neighbors(num_neighbors_in),
-        num_dimensions(num_dimensions_in),
-        nearest_neighbors(NeighborComparator{})
-    {}
+        num_dimensions(num_dimensions_in)
+    {
+        this->array = new Neighbor[num_neighbors_in];
+//        this->nearest_neighbors.
+    }
+
+    ~KNNQueue() {
+        delete[] this->array;
+    }
 
     inline bool empty() const {
-        return this->nearest_neighbors.empty();
+        return this->current_size == 0;
     }
 
     inline void pop() {
-        this->nearest_neighbors.pop();
+        std::pop_heap(this->array, this->array + this->current_size);
+        --this->current_size;
     }
 
     inline void removeFarthestNeighbor() {
-        delete[] this->nearest_neighbors.top().point;
-        this->nearest_neighbors.pop();
+        delete[] this->array[0].point;
+        this->pop();
     }
 
     inline Neighbor top() const {
-        return this->nearest_neighbors.top();
+        return this->array[0];
     }
 
     inline bool full() const {
-        return this->nearest_neighbors.size() == this->num_neighbors;
+        return this->current_size == this->num_neighbors;
+    }
+
+    inline void validate() {
+        if (!this->full()) {
+            std::make_heap(this->array, this->array + this->current_size);
+        }
     }
 
     inline bool registerAsNeighborIfNotFull(float* potential_neighbor, double distance_from_query) {
         // If the priority queue is below capacity, add the potential neighbor regardless of its distance to the query point.
         if (!this->full()) {
-            this->nearest_neighbors.push({potential_neighbor, distance_from_query});
+            this->array[this->current_size] = {potential_neighbor, distance_from_query};
+            ++this->current_size;
+
+            if (this->current_size == this->num_neighbors) {
+                std::make_heap(this->array, this->array + this->num_neighbors);
+            }
 
             return true;
         }
@@ -105,7 +119,9 @@ public:
         // furthest neighbor, remove the furthest neighbor from the priority queue and push the potential neighbor.
         if (this->closerThanFarthestNeighbor(distance_from_potential_query)) {
             this->removeFarthestNeighbor();
-            this->nearest_neighbors.push(Neighbor(potential_neighbor, distance_from_potential_query));
+            this->array[this->current_size] = {potential_neighbor, distance_from_potential_query};
+            ++this->current_size;
+            std::push_heap(this->array, this->array + this->current_size);
 
             return true;
         }
