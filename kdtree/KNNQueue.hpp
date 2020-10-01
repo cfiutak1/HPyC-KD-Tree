@@ -11,11 +11,11 @@ public:
     float* point;
     double distance_from_queried_point;
 
-    Neighbor() = default;
+    Neighbor() {}
 
     Neighbor(float* point_in, double distance_from_queried_point_in):
-            point(point_in),
-            distance_from_queried_point(distance_from_queried_point_in)
+        point(point_in),
+        distance_from_queried_point(distance_from_queried_point_in)
     {}
 
     bool operator < (const Neighbor& n) const {
@@ -101,7 +101,9 @@ public:
     inline bool registerAsNeighborIfNotFull(float* potential_neighbor, double distance_from_query) {
         // If the priority queue is below capacity, add the potential neighbor regardless of its distance to the query point.
         if (!this->full()) {
-            this->array[this->current_size] = {potential_neighbor, distance_from_query};
+            this->array[this->current_size].point = potential_neighbor;
+            this->array[this->current_size].distance_from_queried_point = distance_from_query;
+
             ++this->current_size;
 
             if (this->current_size == this->num_neighbors) {
