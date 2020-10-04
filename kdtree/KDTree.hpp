@@ -17,7 +17,7 @@ private:
     uint64_t num_points;
 
     std::atomic<int> available_threads;
-    KNNQueue results;
+//    KNNQueue results;
 
     void buildTree(const uint64_t subarray_begin, const uint64_t subarray_end, unsigned int depth);
 

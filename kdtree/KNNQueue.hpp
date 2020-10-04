@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <algorithm>
+#include <cstdio>
 
 #pragma once
 
@@ -71,8 +72,11 @@ private:
 
         std::swap(this->array[index], this->array[descendant]);
 
+        if (descendant == 0) return 0; // TODO i just spammed this to hopefully make things work
+
         // Swaps the current item at a[descendant] with its parent, if necessary
         std::size_t descendant_parent = getParentIndex(descendant);
+        printf("%s:%d index=%lu, descendant=%lu, descendant_parent=%lu, this->current_size=%lu\n", __FILE__, __LINE__, index, descendant, descendant_parent, this->current_size);
         bool swap_desc = ((this->array[descendant_parent] < this->array[descendant]) ^ on_max_level) && (descendant > (2 * index + 2));
 
         std::swap(
@@ -85,6 +89,7 @@ private:
 
 
     inline void pushDownIndefinitely(std::size_t index, std::size_t first_index_with_no_grandchildren, std::size_t first_index_with_no_children, bool on_max_level) {
+//        printf("%s:%d index=%lu, first_index_with_no_grandchildren=%lu, first_index_with_no_children=%lu, on_max_level=%d\n", __FILE__, __LINE__, index, first_index_with_no_grandchildren, first_index_with_no_children, on_max_level);
         while (index < first_index_with_no_grandchildren) {
             std::size_t new_index = pushDownTwoLevels<&KNNQueue::findDescendantFullFamily>(index, on_max_level);
 
@@ -95,6 +100,7 @@ private:
         }
 
         if (index == first_index_with_no_grandchildren) {
+//            printf("%s:%d current_size=%lu\n", __FILE__, __LINE__, this->current_size);
             if (4 * index + 6 < this->current_size) {
                 pushDownTwoLevels<&KNNQueue::findDescendantFullFamily>(index, on_max_level);
             }
@@ -116,6 +122,27 @@ private:
     }
 
     inline void pushDownIndefinitely(std::size_t index, bool on_max_level) {
+        if (this->current_size < 7) {
+            if (this->current_size == 2) {
+                this->pushDownOneChild(index, on_max_level);
+            }
+
+            else if (this->current_size == 3) {
+                this->pushDownBothChildrenNoGrandchildren(index, on_max_level);
+            }
+
+            else if (this->current_size > 3) {
+                this->pushDownTwoLevels<&KNNQueue::findDescendantBothChildrenSomeGrandchildren>(index, on_max_level);
+            }
+
+
+
+            return;
+        }
+
+
+
+        printf("%s:%d index=%lu, current_size=%lu\n", __FILE__, __LINE__, index, this->current_size);
         std::size_t first_index_with_no_descendants = this->current_size / 2;
         std::size_t first_index_with_no_grandchildren = this->current_size / 4;
 
@@ -135,13 +162,16 @@ private:
 
 
 public:
-    KNNQueue() = default;
+    KNNQueue() {
+//        printf("%s:%d default constructor\n", __FILE__, __LINE__);
+    }
 
     KNNQueue(const float* query_point_in, const uint64_t& num_neighbors_in, const uint64_t& num_dimensions_in):
         query_point(query_point_in),
         capacity(num_neighbors_in),
         num_dimensions(num_dimensions_in)
     {
+//        printf("%s:%d proper constructor\n", __FILE__, __LINE__);
         this->array = new Neighbor[num_neighbors_in];
     }
 
@@ -177,10 +207,10 @@ public:
         std::size_t largest_item = 1 + (this->array[1] < this->array[2]);
 
         std::swap(this->array[largest_item], this->array[this->current_size - 1]);
+        --this->current_size;
 
         this->pushDownIndefinitely(largest_item, true);
 
-        --this->current_size;
     }
 
     Neighbor& getMax() const {
@@ -255,10 +285,12 @@ public:
             this->array[this->current_size].point = potential_neighbor;
             this->array[this->current_size].distance_from_queried_point = distance_from_query;
 
+//            this->array[this->current_size] = {potential_neighbor, distance_from_query};
+
             ++this->current_size;
 
             if (this->current_size == this->capacity) {
-                std::make_heap(this->array, this->array + this->capacity);
+                this->makeHeap();
             }
 
             return true;
