@@ -78,7 +78,7 @@ void KDTree::nearestNeighborsSearch(const float* query_point, uint64_t begin, ui
     if (query_at_current_dimension < traverser_at_current_dimension) {
         this->nearestNeighborsSearch(query_point, begin, traverser_index, (depth + 1) % this->num_dimensions, nearest_neighbors);
 
-        double farthest_neighbor_distance = nearest_neighbors.top().distance_from_queried_point;
+        double farthest_neighbor_distance = nearest_neighbors.getFarthestDistance();
 
         if (farthest_neighbor_distance < distance_from_query_at_current_dimension) { return; }
 
@@ -92,7 +92,7 @@ void KDTree::nearestNeighborsSearch(const float* query_point, uint64_t begin, ui
     else {
         this->nearestNeighborsSearch(query_point, traverser_index + 1, end, (depth + 1) % this->num_dimensions, nearest_neighbors);
 
-        double farthest_neighbor_distance = nearest_neighbors.top().distance_from_queried_point;
+        double farthest_neighbor_distance = nearest_neighbors.getFarthestDistance();
 
         if (farthest_neighbor_distance < distance_from_query_at_current_dimension) { return; }
 

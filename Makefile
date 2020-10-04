@@ -1,11 +1,12 @@
-CFLAGS = -Wall -Wextra -pedantic -std=c++14 -flto -faligned-new -pthread -O3 -fopenmp
+CFLAGS = -Wall -Wextra -pedantic -std=c++14 -flto -faligned-new -pthread -fopenmp -O3 -g
 CDEBUGFLAGS = -g -DDEBUG
 CC = g++
 VFLAGS = --leak-check=full --track-origins=yes --show-leak-kinds=all -v
+NUM_THREADS = 1
 
 
-all: main.o KNNQueue.o KDTree.o
-	$(CC) $(CFLAGS) main.o KDTree.o KNNQueue.o -o program2
+all: main.o KDTree.o
+	$(CC) $(CFLAGS) main.o KDTree.o -o program2
 
 main.o: main.cpp
 	$(CC) $(CFLAGS) -c main.cpp
@@ -13,8 +14,11 @@ main.o: main.cpp
 KDTree.o: kdtree/KDTree.hpp kdtree/KDTree.cpp
 	$(CC) $(CFLAGS) -c kdtree/KDTree.cpp
 
-KNNQueue.o: kdtree/KNNQueue.hpp kdtree/KNNQueue.cpp
-	$(CC) $(CFLAGS) -c kdtree/KNNQueue.cpp
+ParallelKDTree.o: parallel_kdtree/ParallelKDTree.hpp parallel_kdtree/ParallelKDTree.cpp
+	$(CC) $(CFLAGS) -c parallel_kdtree/ParallelKDTree.cpp
+
+#KNNQueue.o: kdtree/KNNQueue.hpp kdtree/KNNQueue.cpp
+#	$(CC) $(CFLAGS) -c kdtree/KNNQueue.cpp
 
 KNNSingleQuerySearcher.o: singlequerysearcher/KNNSingleQuerySearcher.cpp singlequerysearcher/KNNSingleQuerySearcher.hpp
 	$(CC) $(CFLAGS) -c singlequerysearcher/KNNSingleQuerySearcher.cpp
@@ -23,15 +27,18 @@ SingleQueryWorker.o: singlequerysearcher/SingleQueryWorker.cpp singlequerysearch
 	$(CC) $(CFLAGS) -c singlequerysearcher/SingleQueryWorker.cpp
 
 run: all
-	./program2 8 data/training_10000000_5.dat data/query_100000_5_10.dat results.out
+	./program2 $(NUM_THREADS) data/training_10000000_5.dat data/query_10_5_10000.dat results.out
+
+small_test: all
+	./program2 $(NUM_THREADS) data/training_1000_3.dat data/query_18211359.dat small_results.out
 
 memcheck: all
-	valgrind $(VFLAGS) ./program2 1 data/training_1000_3.dat data/query_17231658.dat results_memcheck.out
+	valgrind $(VFLAGS) ./program2 $(NUM_THREADS) data/training_1000_3.dat data/query_18211359.dat results_memcheck.out
 
 clean:
-	rm *.o program2 results.out
+	rm *.o program2 *.out
 
 performance_test: all
 	for i in 1 2 3 4 5 6 7 8 9 10; do \
-  		./program2 4 data/training_10000000_5.dat data/query_100000_5_10.dat results2.out; \
+  		./program2 1 data/training_10000000_5.dat data/query_100000_5_10.dat results2.out; \
 	done

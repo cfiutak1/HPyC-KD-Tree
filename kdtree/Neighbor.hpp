@@ -1,28 +1,19 @@
-#ifndef NEIGHBOR_HPP
-#define NEIGHBOR_HPP
+#pragma once
 
 
-class Neighbor {
+class alignas(16) Neighbor {
 public:
     float* point;
     double distance_from_queried_point;
 
-    Neighbor() = delete;
+    Neighbor() {}
 
     Neighbor(float* point_in, double distance_from_queried_point_in):
-        point(point_in),
-        distance_from_queried_point(distance_from_queried_point_in)
+            point(point_in),
+            distance_from_queried_point(distance_from_queried_point_in)
     {}
-};
 
-
-class CloserNeighborComparator {
-public:
-    CloserNeighborComparator() = default;
-
-    bool operator()(const Neighbor& n1, const Neighbor& n2) {
-        return n1.distance_from_queried_point < n2.distance_from_queried_point;
+    bool operator < (const Neighbor& n) const {
+        return this->distance_from_queried_point < n.distance_from_queried_point;
     }
 };
-
-#endif
