@@ -27,7 +27,7 @@ SingleQueryWorker.o: singlequerysearcher/SingleQueryWorker.cpp singlequerysearch
 	$(CC) $(CFLAGS) -c singlequerysearcher/SingleQueryWorker.cpp
 
 run: all
-	./program2 $(NUM_THREADS) data/training_10000000_5.dat data/query_10_5_10000.dat results.out
+	./program2 $(NUM_THREADS) data/training_10000000_5.dat data/query_100000_5_10.dat results.out
 
 small_test: all
 	./program2 $(NUM_THREADS) data/training_1000_3.dat data/query_18211359.dat small_results.out
@@ -36,7 +36,7 @@ memcheck: all
 	valgrind $(VFLAGS) ./program2 $(NUM_THREADS) data/training_1000_3.dat data/query_18211359.dat results_memcheck.out
 
 clean:
-	rm *.o program2 *.out
+	rm *.o program2
 
 performance_test: all
 	for i in 1 2 3 4 5 6 7 8 9 10; do \

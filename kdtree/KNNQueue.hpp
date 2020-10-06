@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <algorithm>
 #include <cstdio>
+#include <cassert>
 
 #pragma once
 
@@ -63,6 +64,9 @@ private:
 
     void pushDownBothChildrenNoGrandchildren(std::size_t index, bool on_max_level);
 
+
+
+
     template <std::size_t (KNNQueue::*FindDescendant)(std::size_t, bool) const>
     // TODO When searching, need to skip child levels
     inline std::size_t pushDownTwoLevels(std::size_t index, bool on_max_level) {
@@ -76,7 +80,7 @@ private:
 
         // Swaps the current item at a[descendant] with its parent, if necessary
         std::size_t descendant_parent = getParentIndex(descendant);
-        printf("%s:%d index=%lu, descendant=%lu, descendant_parent=%lu, this->current_size=%lu\n", __FILE__, __LINE__, index, descendant, descendant_parent, this->current_size);
+//        printf("%s:%d index=%lu, descendant=%lu, descendant_parent=%lu, this->current_size=%lu\n", __FILE__, __LINE__, index, descendant, descendant_parent, this->current_size);
         bool swap_desc = ((this->array[descendant_parent] < this->array[descendant]) ^ on_max_level) && (descendant > (2 * index + 2));
 
         std::swap(
@@ -89,7 +93,7 @@ private:
 
 
     inline void pushDownIndefinitely(std::size_t index, std::size_t first_index_with_no_grandchildren, std::size_t first_index_with_no_children, bool on_max_level) {
-//        printf("%s:%d index=%lu, first_index_with_no_grandchildren=%lu, first_index_with_no_children=%lu, on_max_level=%d\n", __FILE__, __LINE__, index, first_index_with_no_grandchildren, first_index_with_no_children, on_max_level);
+//        printf("%s:%d index=%lu, first_index_with_no_grandchildren=%lu, first_index_with_no_children=%lu, on_max_level=%d, current_size = %lu\n", __FILE__, __LINE__, index, first_index_with_no_grandchildren, first_index_with_no_children, on_max_level, current_size);
         while (index < first_index_with_no_grandchildren) {
             std::size_t new_index = pushDownTwoLevels<&KNNQueue::findDescendantFullFamily>(index, on_max_level);
 
@@ -122,29 +126,35 @@ private:
     }
 
     inline void pushDownIndefinitely(std::size_t index, bool on_max_level) {
-        if (this->current_size < 7) {
-            if (this->current_size == 2) {
+//        printf("%s:%d pushing down index=%lu, on_max=%d\n", __FILE__, __LINE__, index, on_max_level);
+//        std::size_t subheap_size = this->current_size - index;
+        std::size_t last_grandchild = 4 * index + 6;
+        std::size_t last_child = 2 * index + 2;
+
+        if (last_child - 1 >= this->current_size) { return; }
+
+//        printf("%s:%d subheap_size = %lu\n", __FILE__, __LINE__, subheap_size);
+        if (last_grandchild >= this->current_size) {
+            if (last_child >= this->current_size) {
                 this->pushDownOneChild(index, on_max_level);
             }
 
-            else if (this->current_size == 3) {
+            else if (last_child == this->current_size + 1) {
                 this->pushDownBothChildrenNoGrandchildren(index, on_max_level);
             }
 
-            else if (this->current_size > 3) {
+            else if ((last_grandchild - 3) < this->current_size) {
                 this->pushDownTwoLevels<&KNNQueue::findDescendantBothChildrenSomeGrandchildren>(index, on_max_level);
             }
-
-
 
             return;
         }
 
 
 
-        printf("%s:%d index=%lu, current_size=%lu\n", __FILE__, __LINE__, index, this->current_size);
-        std::size_t first_index_with_no_descendants = this->current_size / 2;
-        std::size_t first_index_with_no_grandchildren = this->current_size / 4;
+//        printf("%s:%d index=%lu, current_size=%lu\n", __FILE__, __LINE__, index, this->current_size);
+        std::size_t first_index_with_no_descendants = this->current_size / 2 - (this->current_size % 2 == 0);
+        std::size_t first_index_with_no_grandchildren = this->current_size / 4; // TODO might have to do some adjustment here if the above fixed works
 
         this->pushDownIndefinitely(
             index,
@@ -191,14 +201,29 @@ public:
         return this->array[0].distance_from_queried_point;
     }
 
+    void printHeap() {
+        for (std::size_t i = 0; i < this->current_size; ++i) {
+            printf("x_coor = %f, dist = %f \n", this->array[i].point[0], this->array[i].distance_from_queried_point);
+        }
+
+        printf("\n");
+    }
+
     // TODO need to test pop functions on small inputs
+    // TODO move point deletion here
     inline void popMin() {
+//        this->printHeap();
+//        printf("%s:%d popMin on size %lu\n", __FILE__, __LINE__, this->current_size);
         std::swap(this->array[0], this->array[this->current_size - 1]);
-        this->pushDownIndefinitely(0, false);
         --this->current_size;
+        this->pushDownIndefinitely(0, false);
+//        this->printHeap();
     }
 
     inline void popMax() {
+//        printf("%s:%d popMax on size %lu\n", __FILE__, __LINE__, this->current_size);
+//        this->printHeap();
+
         if (this->current_size < 3) {
             --this->current_size;
             return;
@@ -211,12 +236,22 @@ public:
 
         this->pushDownIndefinitely(largest_item, true);
 
+//        this->printHeap();
+    }
+
+
+    Neighbor& getMin() const {
+        return this->array[0];
     }
 
     Neighbor& getMax() const {
         if (this->current_size < 3) {
             return this->array[this->current_size - 1];
         }
+
+
+//        printf("%s:%d a[1]=%f, a[2]=%f, max=%f\n", __FILE__, __LINE__, this->array[1].distance_from_queried_point, this->array[2].distance_from_queried_point, this->array[1 + (this->array[1] < this->array[2])].distance_from_queried_point);
+
         return this->array[1 + (this->array[1] < this->array[2])];
     }
 
@@ -284,14 +319,19 @@ public:
         if (!this->full()) {
             this->array[this->current_size].point = potential_neighbor;
             this->array[this->current_size].distance_from_queried_point = distance_from_query;
+//            printf("%s:%d updated %lu-th neighbor\n", __FILE__, __LINE__, this->current_size);
 
 //            this->array[this->current_size] = {potential_neighbor, distance_from_query};
 
             ++this->current_size;
 
+//            printf("%s:%d\n", __FILE__, __LINE__);
             if (this->current_size == this->capacity) {
+//                this->printHeap();
                 this->makeHeap();
+//                this->printHeap();
             }
+//            printf("%s:%d\n", __FILE__, __LINE__);
 
             return true;
         }
@@ -303,11 +343,23 @@ public:
         // If the priority queue is at capacity and the potential neighbor is closer to the query point than the current
         // furthest neighbor, remove the furthest neighbor from the priority queue and push the potential neighbor.
         if (this->closerThanFarthestNeighbor(distance_from_potential_query)) {
+//            printf("%s:%d\n", __FILE__, __LINE__);
+
+//            std::size_t replace_index;
+
+//            if (this->current_size < 3) {
+//                replace_index = this->current_size - 1;
+//            }
+//
+//            else {
+//                replace_index = 1 + (this->array[1] < this->array[2]);
+//            }
             delete[] this->array[0].point;
             this->array[0].point = potential_neighbor;
             this->array[0].distance_from_queried_point = distance_from_potential_query;
 
             this->pushDownIndefinitely(0, false);
+//            printf("%s:%d\n", __FILE__, __LINE__);
 
             return true;
         }
@@ -337,13 +389,18 @@ public:
 
 
 inline std::size_t KNNQueue::findDescendantOneChild(std::size_t index, bool on_max_level) const {
+//    printf("%s:%d index=%lu size=%lu\n", __FILE__, __LINE__, index, this->current_size);
+    assert (2 * index + 1 < this->current_size);
     std::size_t left_child = 2 * index + 1;
+
 
     return index + ((left_child - index) & (0 - ((this->array[left_child] < this->array[index]) ^ on_max_level)));
 }
 
 
 inline std::size_t KNNQueue::findDescendantBothChildrenNoGrandchildren(std::size_t index, bool on_max_level) const {
+//    printf("%s:%d index=%lu\n", __FILE__, __LINE__, index);
+    assert (2 * index + 2 < this->current_size);
     std::size_t left_child = 2 * index + 1;
     std::size_t most_extreme_child = left_child + ((this->array[left_child + 1] < this->array[left_child]) ^ on_max_level);
 
@@ -354,6 +411,8 @@ inline std::size_t KNNQueue::findDescendantBothChildrenNoGrandchildren(std::size
 inline std::size_t KNNQueue::findDescendantBothChildrenSomeGrandchildren(std::size_t index, bool on_max_level) const {
     std::size_t left_child = 2 * index + 1;
     std::size_t leftmost_grandchild = 4 * index + 3;
+
+    assert (leftmost_grandchild < this->current_size);
 
     std::size_t descendant = left_child + ((this->array[left_child + 1] < this->array[left_child]) ^ on_max_level);
 
@@ -366,6 +425,7 @@ inline std::size_t KNNQueue::findDescendantBothChildrenSomeGrandchildren(std::si
 
 
 inline std::size_t KNNQueue::findDescendantFullFamily(std::size_t index, bool on_max_level) const {
+//    printf("%s:%d index=%lu size=%lu\n", __FILE__, __LINE__, index, this->current_size);
     std::size_t left_child = 2 * index + 1;
     std::size_t leftmost_grandchild = 4 * index + 3;
 
