@@ -1,6 +1,5 @@
 //#include "../kdtree/Neighbor.hpp"
 #include "../kdtree/KNNQueue.hpp"
-#include "../parallel_kdtree/ThreadSafeKNNQueue.hpp"
 #include "../filedata/FileData.hpp"
 #include "../filedata/TrainingFileData.hpp"
 #include "../filedata/QueryFileData.hpp"
@@ -8,9 +7,7 @@
 #include <fstream>
 #include <string>
 #include <stack>
-
-
-
+#include <algorithm>
 
 
 class ResultsFileWriter {
@@ -36,14 +33,14 @@ private:
 
 public:
     ResultsFileWriter(
-        std::string file_name,
-        TrainingFileData* training_file_data,
-        QueryFileData* query_file_data
+            std::string file_name,
+            TrainingFileData* training_file_data,
+            QueryFileData* query_file_data
     ):
-        file_name(file_name),
-        training_file_data(training_file_data),
-        query_file_data(query_file_data),
-        results_file(file_name, std::ios::out | std::ios::app | std::ios::binary)
+            file_name(file_name),
+            training_file_data(training_file_data),
+            query_file_data(query_file_data),
+            results_file(file_name, std::ios::out | std::ios::app | std::ios::binary)
     {}
 
     ~ResultsFileWriter() { this->results_file.close(); }
@@ -63,39 +60,23 @@ public:
 
 
     void writeQueryResults(KNNQueue& nearest_neighbors) {
-
-        while (!nearest_neighbors.empty()) {
-            float* point = nearest_neighbors.getMax().point;
-
-            for (uint64_t i = 0; i < this->query_file_data->num_dimensions; ++i) {
-                this->results_file.write(reinterpret_cast<const char*>(&(point[i])), 4);
-            }
-
-            nearest_neighbors.popMax();
-
-            delete[] point;
-        }
-    }
-
-//    void writeQueryResults(ThreadSafeKNNQueue& nearest_neighbors) {
 //        std::stack<Neighbor> neighbors;
 //
 //        // Furthest neighbor is at the top of the stack, so we need to send the neighbors to another stack to make
 //        // them sorted in ascending distance.
-//        while (!nearest_neighbors.queue.empty()) {
-//            neighbors.push(nearest_neighbors.queue.top());
-//            nearest_neighbors.queue.pop();
+//        while (!nearest_neighbors.empty()) {
+//            neighbors.push(nearest_neighbors.top());
+//            nearest_neighbors.pop();
 //        }
-//
-//        while (!neighbors.empty()) {
-//            float* point = neighbors.top().point;
-//            for (uint64_t i = 0; i < this->query_file_data->num_dimensions; ++i) {
-//                this->results_file.write(reinterpret_cast<const char*>(&(point[i])), 4);
-//            }
-//
-//            neighbors.pop();
-//
-//            delete[] point;
-//        }
-//    }
+
+        std::sort(nearest_neighbors.array, nearest_neighbors.array + this->query_file_data->num_neighbors, std::greater<>());
+
+        for (std::size_t i = this->query_file_data->num_neighbors; i > 0; --i) {
+            for (uint64_t j = 0; j < this->query_file_data->num_dimensions; ++j) {
+                this->results_file.write(reinterpret_cast<const char*>(&(nearest_neighbors.array[i - 1].point[j])), 4);
+            }
+            delete[] nearest_neighbors.array[i - 1].point;
+        }
+
+    }
 };
