@@ -1,4 +1,4 @@
-CFLAGS = -Wall -Wextra -pedantic -std=c++14 -flto -faligned-new -pthread -fopenmp -O3 -g
+CFLAGS = -Wall -Wextra -pedantic -std=c++14 -flto -faligned-new -pthread -fopenmp -O3
 CDEBUGFLAGS = -g -DDEBUG
 CC = g++
 VFLAGS = --leak-check=full --track-origins=yes --show-leak-kinds=all -v
@@ -36,7 +36,7 @@ memcheck: all
 	valgrind $(VFLAGS) ./program2 $(NUM_THREADS) data/training_1000_3.dat data/query_18211359.dat results_memcheck.out
 
 clean:
-	rm *.o program2
+	rm *.o program2 results.out
 
 performance_test: all
 	for i in 1 2 3 4 5 6 7 8 9 10; do \

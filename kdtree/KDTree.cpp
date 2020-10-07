@@ -11,7 +11,7 @@ void KDTree::buildTree(const uint64_t subarray_begin, const uint64_t subarray_en
     // Base case - If there is one element left, it is already sorted and thus in its correct position.
     if (range == 1) { return; }
 
-        // Base case - If there are two elements left, they will be in their correct positions if they are sorted.
+    // Base case - If there are two elements left, they will be in their correct positions if they are sorted.
     else if (range == 2) {
         if (this->nodes[depth][subarray_begin] > this->nodes[depth][subarray_begin + 1]) {
             this->swap(subarray_begin, subarray_begin + 1);
@@ -54,7 +54,8 @@ void KDTree::nearestNeighborsSearch(const float* query_point, uint64_t begin, ui
     uint64_t range = end - begin;
     uint64_t traverser_index = begin + (range >> 1u);
 
-    nearest_neighbors.registerAsNeighborIfEligible(this->pointAt(traverser_index));
+    this->readPointAt(traverser_index, nearest_neighbors.potential_neighbor);
+    nearest_neighbors.registerAsNeighborIfEligible();
 
     // Base case - If there's one element left, it has already been tested so stop recursing.
     if (range == 1) { return; }
@@ -62,7 +63,9 @@ void KDTree::nearestNeighborsSearch(const float* query_point, uint64_t begin, ui
     // Base case - If there's two elements left, the 2nd element has already been tested. Thus, we simply register the
     // 1st element and stop recursing.
     if (range == 2) {
-        nearest_neighbors.registerAsNeighborIfEligible(this->pointAt(traverser_index - 1));
+        this->readPointAt(traverser_index - 1, nearest_neighbors.potential_neighbor);
+
+        nearest_neighbors.registerAsNeighborIfEligible();
         return;
     }
 

@@ -23,14 +23,14 @@ private:
 
     void nearestNeighborsSearch(const float* query_point, uint64_t begin, uint64_t end, uint64_t depth, KNNQueue& nearest_neighbors) const;
 
-    inline float* pointAt(const std::size_t index) const {
-        alignas(32) float* point = new float[this->num_dimensions];
+    inline void readPointAt(const std::size_t index, float* point) const {
+//        alignas(32) float* point = new float[this->num_dimensions];
 
         for (uint64_t i = 0; i < this->num_dimensions; ++i) {
             point[i] = this->nodes[i][index];
         }
 
-        return point;
+//        return point;
     }
 
     inline void swap(std::size_t index1, std::size_t index2) {
