@@ -36,14 +36,14 @@ void KDTree::buildTree(const uint64_t subarray_begin, const uint64_t subarray_en
  * Public method that returns a priority queue containing the K nearest neighbors to a given query point. Serves as a
  * wrapper for the private recursive nearestNeighborsSearch().
  */
-KNNQueue KDTree::nearestNeighborsSearch(const float* query_point, const uint64_t& num_neighbors) const {
-    KNNQueue queue(query_point, num_neighbors, this->num_dimensions);
+void KDTree::nearestNeighborsSearch(const float* query_point, KNNQueue& queue) const {
+//    KNNQueue queue(query_point, num_neighbors, this->num_dimensions);
 
     this->nearestNeighborsSearch(query_point, 0, this->num_points, 0, queue);
 
     queue.validate();
 
-    return queue;
+//    return queue;
 }
 
 
@@ -54,7 +54,7 @@ void KDTree::nearestNeighborsSearch(const float* query_point, uint64_t begin, ui
     uint64_t range = end - begin;
     uint64_t traverser_index = begin + (range >> 1u);
 
-    this->readPointAt(traverser_index, nearest_neighbors.potential_neighbor);
+    this->readPointAt(traverser_index, nearest_neighbors.getPotentialNeighbor());
     nearest_neighbors.registerAsNeighborIfEligible();
 
     // Base case - If there's one element left, it has already been tested so stop recursing.
@@ -63,7 +63,7 @@ void KDTree::nearestNeighborsSearch(const float* query_point, uint64_t begin, ui
     // Base case - If there's two elements left, the 2nd element has already been tested. Thus, we simply register the
     // 1st element and stop recursing.
     if (range == 2) {
-        this->readPointAt(traverser_index - 1, nearest_neighbors.potential_neighbor);
+        this->readPointAt(traverser_index - 1, nearest_neighbors.getPotentialNeighbor());
 
         nearest_neighbors.registerAsNeighborIfEligible();
         return;

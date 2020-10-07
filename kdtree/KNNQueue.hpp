@@ -7,6 +7,48 @@
 #pragma once
 
 
+class PointAllocator {
+private:
+    alignas(32) float* allocated_points;
+    std::size_t num_dimensions;
+    std::size_t num_neighbors;
+    std::size_t num_allocated = 0;
+
+public:
+    float* potential_neighbor;
+
+    PointAllocator() = delete;
+
+    PointAllocator(std::size_t num_dimensions_in, std::size_t num_neighbors_in):
+        num_dimensions(num_dimensions_in),
+        num_neighbors(num_neighbors_in)
+    {
+//        printf("%s:%d\n", __FILE__, __LINE__);
+        this->allocated_points = new float[num_dimensions_in * (num_neighbors_in + 1)];
+        this->potential_neighbor = this->allocated_points + (num_dimensions_in * num_neighbors_in);
+    }
+
+    float* getPoint() {
+        float* point = this->allocated_points + (num_allocated * num_dimensions);
+        ++this->num_allocated;
+
+        return point;
+    }
+
+    void setPotentialNeighbor(float* potential_neighbor_in) {
+
+    }
+
+    void resetCount() {
+        this->num_allocated = 0;
+    }
+
+    ~PointAllocator() {
+        delete[] this->allocated_points;
+    }
+};
+
+
 class Neighbor {
 public:
     float* point;
@@ -15,9 +57,10 @@ public:
 
     Neighbor() = default;
 
-    Neighbor (std::size_t num_dimensions_in): num_dimensions(num_dimensions_in) {
-        this->point = new float[num_dimensions_in];
-    }
+    Neighbor (float* point_in, std::size_t num_dimensions_in):
+        point(point_in),
+        num_dimensions(num_dimensions_in)
+    {}
 
     Neighbor(float* point_in, double distance_from_queried_point_in):
         point(point_in),
@@ -49,46 +92,14 @@ inline double distanceBetween(const float* p1, const float* p2, const int& size)
 }
 
 
-inline double distanceBetweenMaybeILP(const float* p1, const float* p2, std::size_t num_dimensions) {
-    std::size_t i = 0;
-    double distance = 0.0;
-
-    while (i + 4 < num_dimensions) {
-        double diff0 = p2[i] - p1[i];
-        diff0 *= diff0;
-
-        double diff1 = p2[i + 1] - p1[i + 1];
-        diff1 *= diff1;
-
-        double diff2 = p2[i + 2] - p1[i + 2];
-        diff2 *= diff2;
-
-        double diff3 = p2[i + 3] - p1[i + 3];
-        diff3 *= diff3;
-
-        distance += (
-            diff0 + diff1 + diff2 + diff3
-        );
-
-        i += 4;
-    }
-
-    while (i < num_dimensions) {
-        double diff = p2[i] - p1[i];
-        distance += (diff * diff);
-        ++i;
-    }
-
-    return distance;
-}
-
-
 class KNNQueue {
 private:
-    const float* query_point;
+    float* query_point;
     uint64_t num_neighbors;
     uint64_t num_dimensions;
     std::size_t current_size = 0;
+    PointAllocator& point_allocator;
+
     friend class ThreadSafeKNNQueue;
 
     inline bool closerThanFarthestNeighbor(const double& p) const {
@@ -97,43 +108,46 @@ private:
 
 public:
     Neighbor* array;
-    alignas(32) float* potential_neighbor;
+//    alignas(32) float* potential_neighbor;
 
-    KNNQueue() {}
+    KNNQueue() = delete;
 
-    KNNQueue(const float* query_point_in, const uint64_t& num_neighbors_in, const uint64_t& num_dimensions_in):
-            query_point(query_point_in),
-            num_neighbors(num_neighbors_in),
-            num_dimensions(num_dimensions_in)
+    KNNQueue(float* query_point_in, const uint64_t& num_neighbors_in, const uint64_t& num_dimensions_in, PointAllocator& point_allocator_in):
+        query_point(query_point_in),
+        num_neighbors(num_neighbors_in),
+        num_dimensions(num_dimensions_in),
+        point_allocator(point_allocator_in)
     {
         this->array = new Neighbor[num_neighbors_in];
 
+//        this->point_allocator.potential_neighbor = query_point_in;
+
         // TODO look into placement new
         for (std::size_t i = 0; i < this->num_neighbors; ++i) {
-            this->array[i] = Neighbor(this->num_dimensions);
+            this->array[i] = Neighbor(this->point_allocator.getPoint(), this->num_dimensions);
         }
 
-        this->potential_neighbor = new float[this->num_dimensions];
+//        this->potential_neighbor = new float[this->num_dimensions];
     }
 
     ~KNNQueue() {
         delete[] this->array;
-        delete[] this->potential_neighbor;
+//        delete[] this->potential_neighbor;
     }
 
     inline bool empty() const {
         return this->current_size == 0;
     }
 
-    inline void pop() {
-        std::pop_heap(this->array, this->array + this->current_size);
-        --this->current_size;
-    }
-
-    inline void removeFarthestNeighbor() {
-        delete[] this->array[0].point;
-        this->pop();
-    }
+//    inline void pop() {
+//        std::pop_heap(this->array, this->array + this->current_size);
+//        --this->current_size;
+//    }
+//
+//    inline void removeFarthestNeighbor() {
+//        delete[] this->array[0].point;
+//        this->pop();
+//    }
 
     inline Neighbor& top() const {
         return this->array[0];
@@ -147,15 +161,22 @@ public:
         if (!this->full()) {
             std::make_heap(this->array, this->array + this->current_size);
         }
+
+        this->point_allocator.resetCount();
+    }
+
+    inline float* getPotentialNeighbor() const {
+        return this->point_allocator.potential_neighbor;
     }
 
     inline bool registerAsNeighborIfNotFull(double distance_from_query) {
         // If the priority queue is below capacity, add the potential neighbor regardless of its distance to the query point.
         if (!this->full()) {
+//            printf("%s:%d Inserting %lu-th item with distance %f\n", __FILE__, __LINE__, this->current_size, distance_from_query);
             std::swap_ranges(
                 this->array[current_size].point,
                 this->array[current_size].point + this->num_dimensions,
-                this->potential_neighbor
+                this->getPotentialNeighbor()
             );
 
             this->array[this->current_size].distance_from_queried_point = distance_from_query;
@@ -215,10 +236,11 @@ public:
         if (this->closerThanFarthestNeighbor(distance_from_potential_query)) {
             // TODO instead of pop + push, just replace and siftdown
 
+//            printf("%s:%d Replacing top (distance=%f) with new item (distance=%f)\n", __FILE__, __LINE__, this->array->distance_from_queried_point, distance_from_potential_query);
             std::swap_ranges(
                 this->array[0].point,
                 this->array[0].point + this->num_dimensions,
-                this->potential_neighbor
+                this->getPotentialNeighbor()
             );
 
             this->array[0].distance_from_queried_point = distance_from_potential_query;
@@ -243,7 +265,7 @@ public:
  * the priority queue is at capacity, removes the furthest neighbor before adding the point.
  */
     bool registerAsNeighborIfEligible() {
-        double distance_from_query = distanceBetween(this->query_point, potential_neighbor, this->num_dimensions);
+        double distance_from_query = distanceBetween(this->query_point, this->getPotentialNeighbor(), this->num_dimensions);
 
         if (this->registerAsNeighborIfNotFull(distance_from_query)) { return true; }
 

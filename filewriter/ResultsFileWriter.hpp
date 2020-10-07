@@ -74,9 +74,13 @@ public:
         for (std::size_t i = this->query_file_data->num_neighbors; i > 0; --i) {
             for (uint64_t j = 0; j < this->query_file_data->num_dimensions; ++j) {
                 this->results_file.write(reinterpret_cast<const char*>(&(nearest_neighbors.array[i - 1].point[j])), 4);
+//                printf("%f ", nearest_neighbors.array[i - 1].point[j]);
             }
-            delete[] nearest_neighbors.array[i - 1].point;
+//            printf("\n");
+//            delete[] nearest_neighbors.array[i - 1].point;
         }
+
+//        printf("\n");
 
     }
 };

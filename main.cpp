@@ -65,8 +65,11 @@ void runSingleThreaded(TrainingFileProcessor& training_file_processor, QueryFile
     ResultsFileWriter writer(result_file_name, training_file_data, query_file_data);
     writer.writeFileHeader();
 
+    PointAllocator point_allocator(training_file_data->num_dimensions, query_file_data->num_neighbors);
+
     for (uint64_t i = 0; i < query_file_data->num_points; ++i) {
-        KNNQueue results = tree->nearestNeighborsSearch(query_points[i], query_file_data->num_neighbors);
+        KNNQueue results(query_points[i], query_file_data->num_neighbors, query_file_data->num_dimensions, point_allocator);
+        tree->nearestNeighborsSearch(query_points[i], results);
         writer.writeQueryResults(results);
     }
 

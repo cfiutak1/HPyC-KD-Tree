@@ -53,7 +53,7 @@ public:
         this->buildTree(0, this->num_points, 0);
     }
 
-    KNNQueue nearestNeighborsSearch(const float* query_point, const uint64_t& num_neighbors) const;
+    void nearestNeighborsSearch(const float* query_point, KNNQueue& queue) const;
 };
 
 
