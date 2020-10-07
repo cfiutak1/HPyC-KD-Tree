@@ -11,7 +11,7 @@ void KDTree::buildTree(const uint64_t subarray_begin, const uint64_t subarray_en
     // Base case - If there is one element left, it is already sorted and thus in its correct position.
     if (range == 1) { return; }
 
-    // Base case - If there are two elements left, they will be in their correct positions if they are sorted.
+        // Base case - If there are two elements left, they will be in their correct positions if they are sorted.
     else if (range == 2) {
         if (this->nodes[depth][subarray_begin] > this->nodes[depth][subarray_begin + 1]) {
             this->swap(subarray_begin, subarray_begin + 1);
@@ -78,21 +78,21 @@ void KDTree::nearestNeighborsSearch(const float* query_point, uint64_t begin, ui
     if (query_at_current_dimension < traverser_at_current_dimension) {
         this->nearestNeighborsSearch(query_point, begin, traverser_index, (depth + 1) % this->num_dimensions, nearest_neighbors);
 
-        double farthest_neighbor_distance = nearest_neighbors.getFarthestDistance();
+        double farthest_neighbor_distance = nearest_neighbors.top().distance_from_queried_point;
 
         if (farthest_neighbor_distance < distance_from_query_at_current_dimension) { return; }
 
         this->nearestNeighborsSearch(query_point, traverser_index + 1, end, (depth + 1) % this->num_dimensions, nearest_neighbors);
     }
 
-    // If the query is greater than or equal to the traverser at the current dimension,
-    //     1. Traverse down the right subtree.
-    //     2. After fully traversing the right subtree, determine if the left subtree can possibly have a closer neighbor.
-    //     3. If the left subtree is not viable, return. Otherwise, traverse the left subtree.
+        // If the query is greater than or equal to the traverser at the current dimension,
+        //     1. Traverse down the right subtree.
+        //     2. After fully traversing the right subtree, determine if the left subtree can possibly have a closer neighbor.
+        //     3. If the left subtree is not viable, return. Otherwise, traverse the left subtree.
     else {
         this->nearestNeighborsSearch(query_point, traverser_index + 1, end, (depth + 1) % this->num_dimensions, nearest_neighbors);
 
-        double farthest_neighbor_distance = nearest_neighbors.getFarthestDistance();
+        double farthest_neighbor_distance = nearest_neighbors.top().distance_from_queried_point;
 
         if (farthest_neighbor_distance < distance_from_query_at_current_dimension) { return; }
 
