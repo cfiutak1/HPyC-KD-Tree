@@ -11,6 +11,7 @@ class ParallelKDTree {
 private:
     KDTree* tree;
     std::atomic<int> spawned_threads{};
+    std::atomic<int> available_threads;
     int thread_limit;
     KNNQueue* nearest_neighbors;
 

@@ -17,15 +17,13 @@ public:
         this->file_name = file_name;
     }
 
-
     void close() {
         if (this->input_stream) { this->input_stream.close(); }
     }
 
-
-    float** readPoints() {
+    float** readPointsRowCol() {
         uint64_t num_points = this->file_data->num_points;
-        alignas(64) float** points = new float*[num_points];
+        alignas(32) float** points = new float*[num_points];
 
         for (uint64_t i = 0; i < num_points; i++) {
             if (this->input_stream) {
@@ -44,7 +42,6 @@ public:
 
         return points;
     }
-
 
     float** readPointsColRow() {
         float** points = new float*[this->file_data->num_dimensions];

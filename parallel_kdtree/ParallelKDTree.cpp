@@ -98,10 +98,10 @@ void ParallelKDTree::nearestNeighborsSearchTS(const float* query_point, uint64_t
     uint64_t traverser_index = begin + (range >> 1u);
 
     //printf("%s:%d spawned_threads=%d joined_threads=%d\n", __FILE__, __LINE__, spawned_threads.load(), joined_threads.load());
-    float* current_point = this->tree->pointAt(traverser_index);
+    float* current_point = this->tree->readPointAt(traverser_index);
 
     if (isPotentiallyEligible(query_point, current_point, thread_id)) {
-        this->nearest_neighbors[thread_id].registerAsNeighborIfEligible(this->tree->pointAt(traverser_index));
+        this->nearest_neighbors[thread_id].registerAsNeighborIfEligible(this->tree->readPointAt(traverser_index));
     }
 
     // Base case - If there's one element left, it has already been tested so stop recursing.
@@ -110,7 +110,7 @@ void ParallelKDTree::nearestNeighborsSearchTS(const float* query_point, uint64_t
     // Base case - If there's two elements left, the 2nd element has already been tested. Thus, we simply register the
     // 1st element and stop recursing.
     if (range == 2) {
-        nearest_neighbors[thread_id].registerAsNeighborIfEligible(this->tree->pointAt(traverser_index - 1));
+        nearest_neighbors[thread_id].registerAsNeighborIfEligible(this->tree->readPointAt(traverser_index - 1));
         return;
     }
 

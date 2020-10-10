@@ -5,8 +5,8 @@ VFLAGS = --leak-check=full --track-origins=yes --show-leak-kinds=all -v
 NUM_THREADS = 1
 
 
-all: main.o KDTree.o
-	$(CC) $(CFLAGS) main.o KDTree.o -o program2
+all: main.o KDTree.o KNNQueue.o
+	$(CC) $(CFLAGS) KNNQueue.o KDTree.o main.o -o program2
 
 main.o: main.cpp
 	$(CC) $(CFLAGS) -c main.cpp
@@ -17,14 +17,8 @@ KDTree.o: kdtree/KDTree.hpp kdtree/KDTree.cpp
 ParallelKDTree.o: parallel_kdtree/ParallelKDTree.hpp parallel_kdtree/ParallelKDTree.cpp
 	$(CC) $(CFLAGS) -c parallel_kdtree/ParallelKDTree.cpp
 
-#KNNQueue.o: kdtree/KNNQueue.hpp kdtree/KNNQueue.cpp
-#	$(CC) $(CFLAGS) -c kdtree/KNNQueue.cpp
-
-KNNSingleQuerySearcher.o: singlequerysearcher/KNNSingleQuerySearcher.cpp singlequerysearcher/KNNSingleQuerySearcher.hpp
-	$(CC) $(CFLAGS) -c singlequerysearcher/KNNSingleQuerySearcher.cpp
-
-SingleQueryWorker.o: singlequerysearcher/SingleQueryWorker.cpp singlequerysearcher/SingleQueryWorker.hpp
-	$(CC) $(CFLAGS) -c singlequerysearcher/SingleQueryWorker.cpp
+KNNQueue.o: kdtree/KNNQueue.hpp kdtree/KNNQueue.cpp
+	$(CC) $(CFLAGS) -c kdtree/KNNQueue.cpp
 
 run: all
 	./program2 $(NUM_THREADS) data/training_10000000_5.dat data/query_100000_5_10.dat results.out

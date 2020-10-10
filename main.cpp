@@ -59,13 +59,13 @@ void runSingleThreaded(TrainingFileProcessor& training_file_processor, QueryFile
 
 
     QueryFileData* query_file_data = query_file_processor.readQueryFileHeader();
-    alignas(32) float** query_points = query_file_processor.readPoints();
+    alignas(32) float** query_points = query_file_processor.readPointsRowCol();
 
     auto query_and_file_out_start = std::chrono::steady_clock::now();
     ResultsFileWriter writer(result_file_name, training_file_data, query_file_data);
     writer.writeFileHeader();
 
-    PointAllocator point_allocator(training_file_data->num_dimensions, query_file_data->num_neighbors);
+    NeighborPointRecycler point_allocator(training_file_data->num_dimensions, query_file_data->num_neighbors);
 
     for (uint64_t i = 0; i < query_file_data->num_points; ++i) {
         KNNQueue results(query_points[i], query_file_data->num_neighbors, query_file_data->num_dimensions, point_allocator);
@@ -101,7 +101,7 @@ void runSingleThreaded(TrainingFileProcessor& training_file_processor, QueryFile
 //    auto query_and_file_out_start = std::chrono::steady_clock::now();
 //
 //    QueryFileData* query_file_data = query_file_processor.readQueryFileHeader();
-//    alignas(32) float** query_points = query_file_processor.readPoints();
+//    alignas(32) float** query_points = query_file_processor.readPointsRowCol();
 //
 //    ResultsFileWriter writer(result_file_name, training_file_data, query_file_data);
 //    writer.writeFileHeader();

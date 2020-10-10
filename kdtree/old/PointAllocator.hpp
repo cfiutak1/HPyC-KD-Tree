@@ -3,6 +3,6 @@
 #pragma once
 
 
-class PointAllocator {
+class NeighborPointRecycler {
     bool* is_available;
 };

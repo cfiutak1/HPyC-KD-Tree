@@ -38,7 +38,7 @@ public:
         this->queue = k.queue;
     }
 
-    ThreadSafeKNNQueue& operator =(const ThreadSafeKNNQueue& k) {
+    ThreadSafeKNNQueue& operator= (const ThreadSafeKNNQueue& k) {
         this->query_point = k.query_point;
         this->num_neighbors = k.num_neighbors;
         this->num_dimensions = k.num_dimensions;
