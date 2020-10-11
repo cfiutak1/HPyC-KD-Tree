@@ -21,7 +21,6 @@ public:
 
         this->file_data = new TrainingFileData(file_id, num_points, num_dimensions);
 
-
         return static_cast<TrainingFileData*>(this->file_data);
     }
 };

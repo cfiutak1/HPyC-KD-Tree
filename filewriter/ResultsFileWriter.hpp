@@ -18,9 +18,9 @@ private:
 
     std::ofstream results_file;
 
-    uint64_t generateFileID() {
+    std::size_t generateFileID() {
         std::ifstream urandom("/dev/urandom", std::ios::in|std::ios::binary);
-        uint64_t rand = 0;
+        std::size_t rand = 0;
 
         if (urandom) {
             urandom.read(reinterpret_cast<char*>(&rand), 8);
@@ -60,27 +60,13 @@ public:
 
 
     void writeQueryResults(KNNQueue& nearest_neighbors) {
-//        std::stack<Neighbor> neighbors;
-//
-//        // Furthest neighbor is at the top of the stack, so we need to send the neighbors to another stack to make
-//        // them sorted in ascending distance.
-//        while (!nearest_neighbors.empty()) {
-//            neighbors.push(nearest_neighbors.top());
-//            nearest_neighbors.pop();
-//        }
-
         std::sort(nearest_neighbors.array, nearest_neighbors.array + this->query_file_data->num_neighbors, std::greater<>());
 
         for (std::size_t i = this->query_file_data->num_neighbors; i > 0; --i) {
-            for (uint64_t j = 0; j < this->query_file_data->num_dimensions; ++j) {
+            for (std::size_t j = 0; j < this->query_file_data->num_dimensions; ++j) {
                 this->results_file.write(reinterpret_cast<const char*>(&(nearest_neighbors.array[i - 1].point[j])), 4);
-//                printf("%f ", nearest_neighbors.array[i - 1].point[j]);
             }
-//            printf("\n");
-//            delete[] nearest_neighbors.array[i - 1].point;
+
         }
-
-//        printf("\n");
-
     }
 };

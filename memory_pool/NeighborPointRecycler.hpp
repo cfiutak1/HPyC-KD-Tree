@@ -36,6 +36,6 @@ public:
     }
 
     ~NeighborPointRecycler() {
-        delete[] this->allocated_points;
+        ::operator delete[](this->allocated_points, std::align_val_t(32));
     }
 };
