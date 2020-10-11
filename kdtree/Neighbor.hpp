@@ -5,13 +5,11 @@ class Neighbor {
 public:
     float* point;
     double distance_from_queried_point;
-    std::size_t num_dimensions;
 
     Neighbor() = default;
 
-    Neighbor (float* point_in, std::size_t num_dimensions_in):
-        point(point_in),
-        num_dimensions(num_dimensions_in)
+    Neighbor (float* point_in):
+        point(point_in)
     {}
 
     Neighbor(float* point_in, double distance_from_queried_point_in):

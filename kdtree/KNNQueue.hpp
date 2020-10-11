@@ -4,7 +4,6 @@
 #include <queue>
 #include <vector>
 #include <cstdint>
-#include <mutex>
 #include <algorithm>
 
 #pragma once
@@ -12,10 +11,10 @@
 /*
  * Free function that computes the euclidean squared distance between two float arrays of equal size.
  */
-inline double distanceBetween(const float* p1, const float* p2, const int& size) {
+inline double distanceBetween(const float* p1, const float* p2, const std::size_t size) {
     double distance = 0.0;
 
-    for (int i = 0; i < size; ++i) {
+    for (std::size_t i = 0; i < size; ++i) {
         double diff = p2[i] - p1[i];
         distance += (diff * diff);
     }
@@ -26,7 +25,7 @@ inline double distanceBetween(const float* p1, const float* p2, const int& size)
 
 class KNNQueue {
 private:
-    float* query_point;
+    const float* query_point;
     std::size_t num_neighbors;
     std::size_t num_dimensions;
     std::size_t current_size = 0;
@@ -34,7 +33,7 @@ private:
 
     friend class ThreadSafeKNNQueue;
 
-    inline bool closerThanFarthestNeighbor(const double& p) const {
+    inline bool closerThanFarthestNeighbor(const double p) const {
         return p < this->top().distance_from_queried_point;
     }
 
@@ -43,7 +42,7 @@ public:
 
     KNNQueue() = delete;
 
-    KNNQueue(float* query_point_in, const std::size_t num_neighbors_in, const std::size_t num_dimensions_in, NeighborPointRecycler& point_allocator_in):
+    KNNQueue(const float* query_point_in, const std::size_t num_neighbors_in, const std::size_t num_dimensions_in, NeighborPointRecycler& point_allocator_in):
         query_point(query_point_in),
         num_neighbors(num_neighbors_in),
         num_dimensions(num_dimensions_in),
@@ -51,9 +50,8 @@ public:
     {
         this->array = new Neighbor[num_neighbors_in];
 
-        // TODO look into placement new
         for (std::size_t i = 0; i < this->num_neighbors; ++i) {
-            this->array[i] = Neighbor(this->point_allocator.getPoint(), this->num_dimensions);
+            this->array[i] = Neighbor(this->point_allocator.getPoint());
         }
     }
 
@@ -77,19 +75,28 @@ public:
         return this->point_allocator.potential_neighbor;
     }
 
+    inline double distanceFromPotentialNeighbor() {
+        return distanceBetween(this->query_point, getPotentialNeighbor(), this->num_dimensions);
+    }
+
+    inline void heapify() {
+        std::make_heap(this->array, this->array + this->num_neighbors);
+    }
+
+    /*
+     * Heapifies the array if the array hasn't been heapified yet and returns the memory to the point recycler.
+     */
     inline void validate() {
         if (!this->full()) {
-            std::make_heap(this->array, this->array + this->current_size);
+            this->heapify();
         }
 
         this->point_allocator.resetCount();
     }
 
-    bool registerAsNeighborIfNotFull(double distance_from_query);
-
     void siftDownRoot();
 
-    inline bool registerAsNeighborIfCloser(double distance_from_potential_query);
+    void registerAsNeighbor();
 
-    bool registerAsNeighborIfEligible();
+    void registerAsNeighborIfCloser();
 };
