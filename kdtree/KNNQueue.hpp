@@ -27,8 +27,8 @@ inline double distanceBetween(const float* p1, const float* p2, const int& size)
 class KNNQueue {
 private:
     float* query_point;
-    uint64_t num_neighbors;
-    uint64_t num_dimensions;
+    std::size_t num_neighbors;
+    std::size_t num_dimensions;
     std::size_t current_size = 0;
     NeighborPointRecycler& point_allocator;
 
@@ -43,7 +43,7 @@ public:
 
     KNNQueue() = delete;
 
-    KNNQueue(float* query_point_in, const uint64_t& num_neighbors_in, const uint64_t& num_dimensions_in, NeighborPointRecycler& point_allocator_in):
+    KNNQueue(float* query_point_in, const std::size_t num_neighbors_in, const std::size_t num_dimensions_in, NeighborPointRecycler& point_allocator_in):
         query_point(query_point_in),
         num_neighbors(num_neighbors_in),
         num_dimensions(num_dimensions_in),

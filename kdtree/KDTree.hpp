@@ -13,17 +13,17 @@ private:
     friend class ParallelKDTree;
 
     float** nodes;
-    uint64_t num_dimensions;
-    uint64_t num_points;
+    std::size_t num_dimensions;
+    std::size_t num_points;
 
 
 
-    void buildTree(const uint64_t subarray_begin, const uint64_t subarray_end, unsigned int depth);
+    void buildTree(const std::size_t subarray_begin, const std::size_t subarray_end, unsigned int depth);
 
-    void nearestNeighborsSearch(const float* query_point, uint64_t begin, uint64_t end, uint64_t depth, KNNQueue& nearest_neighbors) const;
+    void nearestNeighborsSearch(const float* query_point, std::size_t begin, std::size_t end, std::size_t depth, KNNQueue& nearest_neighbors) const;
 
     inline void readPointAt(float* point, const std::size_t index) const {
-        for (uint64_t i = 0; i < this->num_dimensions; ++i) {
+        for (std::size_t i = 0; i < this->num_dimensions; ++i) {
             point[i] = this->nodes[i][index];
         }
     }
@@ -40,7 +40,7 @@ private:
 public:
     KDTree() = default;
 
-    KDTree(float** nodes_in, const uint64_t num_points_in, uint64_t num_dimensions_in):
+    KDTree(float** nodes_in, const std::size_t num_points_in, std::size_t num_dimensions_in):
         nodes(nodes_in),
         num_dimensions(num_dimensions_in),
         num_points(num_points_in)

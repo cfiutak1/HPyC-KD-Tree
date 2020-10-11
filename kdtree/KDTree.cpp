@@ -5,8 +5,8 @@
 /*
  * Private method that restructures the array given to the constructor to a well-balanced KD-Tree.
  */
-void KDTree::buildTree(const uint64_t subarray_begin, const uint64_t subarray_end, unsigned int depth) {
-    uint64_t range = subarray_end - subarray_begin;
+void KDTree::buildTree(const std::size_t subarray_begin, const std::size_t subarray_end, unsigned int depth) {
+    std::size_t range = subarray_end - subarray_begin;
 
     // Base case - If there is one element left, it is already sorted and thus in its correct position.
     if (range == 1) { return; }
@@ -49,9 +49,9 @@ void KDTree::nearestNeighborsSearch(const float* query_point, KNNQueue& queue) c
 /*
  * Private method that executes the K nearest neighbors search for a given query point.
  */
-void KDTree::nearestNeighborsSearch(const float* query_point, uint64_t begin, uint64_t end, uint64_t depth, KNNQueue& nearest_neighbors) const {
-    uint64_t range = end - begin;
-    uint64_t traverser_index = begin + (range >> 1u);
+void KDTree::nearestNeighborsSearch(const float* query_point, std::size_t begin, std::size_t end, std::size_t depth, KNNQueue& nearest_neighbors) const {
+    std::size_t range = end - begin;
+    std::size_t traverser_index = begin + (range >> 1u);
 
     this->readPointAt(nearest_neighbors.getPotentialNeighbor(), traverser_index);
     nearest_neighbors.registerAsNeighborIfEligible();
