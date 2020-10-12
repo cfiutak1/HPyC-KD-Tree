@@ -21,7 +21,7 @@ parser.add_argument("dist", type=int,help="""Type of distribution\n0: Uniform Di
         Distribution\n2: Beta distribution\n3: Exponential distribution""",choices=[0, 1, 2,3])
 args = parser.parse_args()
 
-datafilename = f"training_{args.rows}_{args.cols}.dat"
+datafilename = f"../data/training_{args.rows}_{args.cols}.dat"
 # datafilename = "data_" + str(fileid) + ".dat"
 
 fp = open(datafilename, "wb")

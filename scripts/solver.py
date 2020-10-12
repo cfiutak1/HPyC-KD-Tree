@@ -93,6 +93,42 @@ def generate_results_file(training_points: List[List[float]], query_points: List
     results_file.close()
 
 
+def generate_results_file_one_query(training_points: List[List[float]], query_points: List[List[float]], file_ids: Tuple[int], num_neighbors: int, results_file_name: str) -> None:
+    distance_metric = sklearn.neighbors.DistanceMetric.get_metric("euclidean")
+    t = time.time()
+    tree = sklearn.neighbors.KDTree(np.array(training_points), metric=distance_metric)
+    build_time = time.time() - t
+
+    results_file = open(results_file_name, "wb")
+
+    results_file.write(b"RESULT\0\0")
+    results_file.write(struct.pack("=q", file_ids[0]))
+    results_file.write(struct.pack("=q", file_ids[1]))
+    results_file_id = int(datetime.datetime.now().strftime("%d%H%M%S"))
+    results_file.write(struct.pack("=q", 69))
+    num_queries = len(query_points)
+    results_file.write(struct.pack("=q", num_queries))
+    num_dimensions = len(query_points[0])
+    results_file.write(struct.pack("=q", num_dimensions))
+    results_file.write(struct.pack("=q", num_neighbors))
+
+    t = time.time()
+
+    dist, ind = tree.query(np.array(query_points[0]).reshape(1, -1), k=num_neighbors)
+
+    # print(ind[0])
+    # print(list(ind))
+    print(f"{len(training_points)}, {build_time}, {time.time() - t}")
+
+    for index in ind[0]:
+        for dim in range(num_dimensions):
+            results_file.write(struct.pack("=f", training_points[index][dim]))
+
+    # print(f"sklearn query and file IO took {time.time() - t}")
+
+
+    results_file.close()
+
 def main():
     if len(sys.argv) != 4:
         print("Error: Program requires 3 arguments")
@@ -105,7 +141,7 @@ def main():
     training_file_id, training_points = read_training_file(training_file_name)
     query_file_id, num_neighbors, query_points = read_query_file(query_file_name)
 
-    generate_results_file(training_points, query_points, (training_file_id, query_file_id), num_neighbors, results_file_name)
+    generate_results_file_one_query(training_points, query_points, (training_file_id, query_file_id), num_neighbors, results_file_name)
 
 
 
@@ -113,4 +149,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    # read_result_file("sklearn_results.out")
