@@ -62,6 +62,12 @@ public:
         return begin + 1;
     }
 
+    inline void sort3(const std::size_t begin) {
+        this->compareAndSwap(begin + 1, begin + 2);
+        this->compareAndSwap(begin + 0, begin + 1);
+        this->compareAndSwap(begin + 1, begin + 2);
+    }
+
 
     /*
      * Somewhat naive implementation of block partition that handles two cases:

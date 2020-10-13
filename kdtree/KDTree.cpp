@@ -21,8 +21,15 @@ void KDTree::buildTree(const std::size_t subarray_begin, const std::size_t subar
         return;
     }
 
+    else if (range == 3) {
+        AdaptiveCacheAwareBlockquickselect<> qs(this->nodes, this->num_dimensions, depth);
+        qs.sort3(subarray_begin);
+
+        return;
+    }
+
     // Partition the current subarray around the median at the current dimension.
-    AdaptiveCacheAwareBlockquickselect<64> qs(this->nodes, this->num_dimensions, depth);
+    AdaptiveCacheAwareBlockquickselect<> qs(this->nodes, this->num_dimensions, depth);
     qs.nth_element(subarray_begin, subarray_end, (range / 2));
 
     unsigned int new_depth = (depth + 1) & (-1 + (depth == this->num_dimensions - 1));
