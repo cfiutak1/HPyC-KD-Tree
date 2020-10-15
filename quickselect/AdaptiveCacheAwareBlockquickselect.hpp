@@ -6,25 +6,25 @@
 #pragma once
 
 namespace hpyc {
-template <std::size_t BlockSize=2048, std::size_t CacheLineSize=64>
+template <typename ItemT, std::size_t BlockSize=64, std::size_t CacheLineSize=64>
 class AdaptiveCacheAwareBlockquickselect {
 private:
-    float** nodes;
+    ItemT** nodes;
     std::size_t num_dimensions;
     unsigned int depth;
-    static constexpr std::size_t ItemsPerCacheLine = CacheLineSize / sizeof(float);
+    static constexpr std::size_t ItemsPerCacheLine = CacheLineSize / sizeof(ItemT);
 
 public:
     AdaptiveCacheAwareBlockquickselect() = delete;
 
-    AdaptiveCacheAwareBlockquickselect(float** nodes_in, std::size_t num_dimensions_in, unsigned int depth_in):
+    AdaptiveCacheAwareBlockquickselect(ItemT** nodes_in, std::size_t num_dimensions_in, unsigned int depth_in):
         nodes(nodes_in),
         num_dimensions(num_dimensions_in),
         depth(depth_in)
     {}
 
 
-    inline float& cellAt(const std::size_t index) const {
+    inline ItemT& cellAt(const std::size_t index) const {
         return this->nodes[this->depth][index];
     }
 
@@ -327,7 +327,7 @@ public:
 
         // The samples are moved to the beginning of the array, and of those samples, the pivot_pos-th largest sample is
         // chosen to be the pivot. The pivot position is determined by the size of k relative to the size of the chunk to partition.
-        float pivot_ratio = float(k) / chunk_size;
+        ItemT pivot_ratio = ItemT(k) / chunk_size;
         std::size_t pivot_pos = pivot_ratio * sample_size;
 
         // If the pivot position is large enough to make it viable, adjust the pivot position so that the pivot position is
@@ -352,7 +352,7 @@ public:
 
             // Adjust the sample size based on changes to the pivot position.
             if (pivot_pos > 0) {
-                sample_size = std::ceil(float(pivot_pos) / pivot_ratio);
+                sample_size = std::ceil(ItemT(pivot_pos) / pivot_ratio);
             }
         }
 
