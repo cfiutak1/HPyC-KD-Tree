@@ -8,6 +8,8 @@
 
 #pragma once
 
+namespace hpyc {
+
 /*
  * Free function that computes the euclidean squared distance between two float arrays of equal size.
  */
@@ -100,3 +102,5 @@ public:
 
     void registerAsNeighborIfCloser();
 };
+
+}

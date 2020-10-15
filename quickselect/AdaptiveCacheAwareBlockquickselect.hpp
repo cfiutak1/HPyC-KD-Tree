@@ -5,19 +5,19 @@
 
 #pragma once
 
-
+namespace hpyc {
 template <std::size_t BlockSize=2048, std::size_t CacheLineSize=64>
 class AdaptiveCacheAwareBlockquickselect {
 private:
     float** nodes;
-    uint64_t num_dimensions;
+    std::size_t num_dimensions;
     unsigned int depth;
     static constexpr std::size_t ItemsPerCacheLine = CacheLineSize / sizeof(float);
 
 public:
     AdaptiveCacheAwareBlockquickselect() = delete;
 
-    AdaptiveCacheAwareBlockquickselect(float** nodes_in, uint64_t num_dimensions_in, unsigned int depth_in):
+    AdaptiveCacheAwareBlockquickselect(float** nodes_in, std::size_t num_dimensions_in, unsigned int depth_in):
         nodes(nodes_in),
         num_dimensions(num_dimensions_in),
         depth(depth_in)
@@ -30,7 +30,7 @@ public:
 
 
     inline void swap(const std::size_t index1, const std::size_t index2) {
-        for (uint64_t i = 0; i < this->num_dimensions; ++i) {
+        for (std::size_t i = 0; i < this->num_dimensions; ++i) {
             std::swap(
                 this->nodes[i][index1],
                 this->nodes[i][index2]
@@ -369,7 +369,7 @@ public:
         nth_element(begin, begin + sample_size, pivot_pos);
 
         // Swap all items in the sample slice that are !comp() to the pivot with items at the end of the chunk.
-        for (uint64_t i = 0; i < this->num_dimensions; ++i) {
+        for (std::size_t i = 0; i < this->num_dimensions; ++i) {
             std::swap_ranges(
                 this->nodes[i] + (begin + pivot_pos + 1),
                 this->nodes[i] + (begin + sample_size),
@@ -444,3 +444,4 @@ public:
         }
     }
 };
+}

@@ -1,5 +1,6 @@
 #include <cstdint>
 
+namespace hpyc {
 
 class Neighbor {
 public:
@@ -25,3 +26,5 @@ public:
         return this->distance_from_queried_point > n.distance_from_queried_point;
     }
 };
+
+}

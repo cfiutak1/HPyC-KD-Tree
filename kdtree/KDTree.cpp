@@ -1,6 +1,7 @@
 #include "KDTree.hpp"
 #include "../quickselect/AdaptiveCacheAwareBlockquickselect.hpp"
 
+namespace hpyc {
 
 /*
  * Private method that builds an implicit KD tree for the given range. The root of a given subtree is always placed at
@@ -29,7 +30,7 @@ void KDTree::buildTree(const std::size_t subarray_begin, const std::size_t subar
     }
 
     // Partition the current subarray around the median at the current dimension.
-    AdaptiveCacheAwareBlockquickselect<> qs(this->nodes, this->num_dimensions, depth);
+    AdaptiveCacheAwareBlockquickselect<64> qs(this->nodes, this->num_dimensions, depth);
     qs.nth_element(subarray_begin, subarray_end, (range / 2));
 
     unsigned int new_depth = (depth + 1) & (-1 + (depth == this->num_dimensions - 1));
@@ -143,4 +144,6 @@ void KDTree::nearestNeighborsSearch(const float* query_point, std::size_t begin,
 
         this->nearestNeighborsSearch<CheckIfFull>(query_point, begin, traverser_index, new_depth, nearest_neighbors);
     }
+}
+
 }

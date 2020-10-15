@@ -1,6 +1,6 @@
 #include "KNNQueue.hpp"
 
-
+namespace hpyc {
 /*
  * Standard binary heap siftdown function. Sifts the root index down until it is in a valid position.
  */
@@ -79,4 +79,5 @@ void KNNQueue::registerAsNeighborIfCloser() {
 
         this->siftDownRoot();
     }
+}
 }
