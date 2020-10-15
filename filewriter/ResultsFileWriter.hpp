@@ -1,4 +1,4 @@
-#include "../kdtree/Neighbor.hpp"
+//#include "../kdtree/Neighbor.hpp"
 #include "../kdtree/KNNQueue.hpp"
 #include "../filedata/FileData.hpp"
 #include "../filedata/TrainingFileData.hpp"
@@ -7,9 +7,7 @@
 #include <fstream>
 #include <string>
 #include <stack>
-
-
-
+#include <algorithm>
 
 
 class ResultsFileWriter {
@@ -20,9 +18,9 @@ private:
 
     std::ofstream results_file;
 
-    uint64_t generateFileID() {
+    std::size_t generateFileID() {
         std::ifstream urandom("/dev/urandom", std::ios::in|std::ios::binary);
-        uint64_t rand = 0;
+        std::size_t rand = 0;
 
         if (urandom) {
             urandom.read(reinterpret_cast<char*>(&rand), 8);
@@ -35,14 +33,14 @@ private:
 
 public:
     ResultsFileWriter(
-        std::string file_name,
-        TrainingFileData* training_file_data,
-        QueryFileData* query_file_data
+            std::string file_name,
+            TrainingFileData* training_file_data,
+            QueryFileData* query_file_data
     ):
-        file_name(file_name),
-        training_file_data(training_file_data),
-        query_file_data(query_file_data),
-        results_file(file_name, std::ios::out | std::ios::app | std::ios::binary)
+            file_name(file_name),
+            training_file_data(training_file_data),
+            query_file_data(query_file_data),
+            results_file(file_name, std::ios::out | std::ios::app | std::ios::binary)
     {}
 
     ~ResultsFileWriter() { this->results_file.close(); }
@@ -62,21 +60,13 @@ public:
 
 
     void writeQueryResults(KNNQueue& nearest_neighbors) {
-        std::stack<Neighbor> neighbors;
+        std::sort(nearest_neighbors.array, nearest_neighbors.array + this->query_file_data->num_neighbors, std::greater<>());
 
-        // Furthest neighbor is at the top of the stack, so we need to send the neighbors to another stack to make
-        // them sorted in ascending distance.
-        while (!nearest_neighbors.empty()) {
-            neighbors.push(nearest_neighbors.top());
-            nearest_neighbors.pop();
-        }
-
-        while (!neighbors.empty()) {
-            for (uint64_t i = 0; i < this->query_file_data->num_dimensions; ++i) {
-                this->results_file.write(reinterpret_cast<const char*>(&(neighbors.top().point[i])), 4);
+        for (std::size_t i = this->query_file_data->num_neighbors; i > 0; --i) {
+            for (std::size_t j = 0; j < this->query_file_data->num_dimensions; ++j) {
+                this->results_file.write(reinterpret_cast<const char*>(&(nearest_neighbors.array[i - 1].point[j])), 4);
             }
 
-            neighbors.pop();
         }
     }
 };

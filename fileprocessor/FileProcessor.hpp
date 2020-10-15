@@ -17,17 +17,16 @@ public:
         this->file_name = file_name;
     }
 
-
     void close() {
         if (this->input_stream) { this->input_stream.close(); }
     }
 
+    float** readPointsRowCol() {
+        std::size_t num_points = this->file_data->num_points;
 
-    float** readPoints() {
-        uint64_t num_points = this->file_data->num_points;
-        alignas(64) float** points = new float*[num_points];
+        alignas(32) float** points = new float*[num_points];
 
-        for (uint64_t i = 0; i < num_points; i++) {
+        for (std::size_t i = 0; i < num_points; i++) {
             if (this->input_stream) {
                 float* f = new float[this->file_data->num_dimensions];
 
@@ -45,24 +44,23 @@ public:
         return points;
     }
 
-
     float** readPointsColRow() {
         float** points = new float*[this->file_data->num_dimensions];
 
-        for (uint64_t i = 0; i < this->file_data->num_dimensions; ++i) {
+        for (std::size_t i = 0; i < this->file_data->num_dimensions; ++i) {
             points[i] = new float[this->file_data->num_points];
         }
 
 
         float* read_buffer = new float[this->file_data->num_dimensions];
 
-        for (uint64_t i = 0; i < this->file_data->num_points; ++i) {
+        for (std::size_t i = 0; i < this->file_data->num_points; ++i) {
             this->input_stream.read(
                 (char*) read_buffer,
                 this->file_data->num_dimensions * sizeof(float)
             );
 
-            for (uint64_t j = 0; j < this->file_data->num_dimensions; ++j) {
+            for (std::size_t j = 0; j < this->file_data->num_dimensions; ++j) {
                 points[j][i] = read_buffer[j];
             }
         }

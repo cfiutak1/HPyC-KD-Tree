@@ -1,42 +1,102 @@
 #include "Neighbor.hpp"
+#include "../memory_pool/NeighborPointRecycler.hpp"
 
 #include <queue>
 #include <vector>
 #include <cstdint>
+#include <algorithm>
 
 #pragma once
+
+/*
+ * Free function that computes the euclidean squared distance between two float arrays of equal size.
+ */
+inline double distanceBetween(const float* p1, const float* p2, const std::size_t size) {
+    double distance = 0.0;
+
+    for (std::size_t i = 0; i < size; ++i) {
+        double diff = p2[i] - p1[i];
+        distance += (diff * diff);
+    }
+
+    return distance;
+}
 
 
 class KNNQueue {
 private:
     const float* query_point;
-    const uint64_t& num_neighbors;
-    const uint64_t& num_dimensions;
+    std::size_t num_neighbors;
+    std::size_t num_dimensions;
+    std::size_t current_size = 0;
+    NeighborPointRecycler& point_allocator;
 
-    static constexpr NeighborComparator comp = {};
-    std::priority_queue<Neighbor, std::vector<Neighbor>, NeighborComparator> nearest_neighbors;
+    friend class ThreadSafeKNNQueue;
 
-    bool closerThanFarthestNeighbor(const double& p) const;
+    inline bool closerThanFarthestNeighbor(const double p) const {
+        return p < this->top().distance_from_queried_point;
+    }
 
 public:
+    Neighbor* array;
+
     KNNQueue() = delete;
 
-    KNNQueue(const float* query_point_in, const uint64_t& num_neighbors_in, const uint64_t& num_dimensions_in):
+    KNNQueue(const float* query_point_in, const std::size_t num_neighbors_in, const std::size_t num_dimensions_in, NeighborPointRecycler& point_allocator_in):
         query_point(query_point_in),
         num_neighbors(num_neighbors_in),
         num_dimensions(num_dimensions_in),
-        nearest_neighbors(comp)
-    {}
+        point_allocator(point_allocator_in)
+    {
+        this->array = new Neighbor[num_neighbors_in];
 
-    ~KNNQueue() {}
+        for (std::size_t i = 0; i < this->num_neighbors; ++i) {
+            this->array[i] = Neighbor(this->point_allocator.getPoint());
+        }
+    }
 
-    inline bool empty() const { return this->nearest_neighbors.empty(); }
+    ~KNNQueue() {
+        delete[] this->array;
+    }
 
-    inline void pop() { this->nearest_neighbors.pop(); }
+    inline bool empty() const {
+        return this->current_size == 0;
+    }
 
-    inline Neighbor top() const { return this->nearest_neighbors.top(); }
+    inline Neighbor& top() const {
+        return this->array[0];
+    }
 
-    inline bool isFull() const { return this->nearest_neighbors.size() == this->num_neighbors; }
+    inline bool full() const {
+        return this->current_size == this->num_neighbors;
+    }
 
-    bool registerAsNeighborIfCloser(float* potential_neighbor);
+    inline float* getPotentialNeighbor() const {
+        return this->point_allocator.potential_neighbor;
+    }
+
+    inline double distanceFromPotentialNeighbor() {
+        return distanceBetween(this->query_point, getPotentialNeighbor(), this->num_dimensions);
+    }
+
+    inline void heapify() {
+        std::make_heap(this->array, this->array + this->num_neighbors);
+    }
+
+    /*
+     * Heapifies the array if the array hasn't been heapified yet and returns the memory to the point recycler.
+     */
+    inline void validate() {
+        if (!this->full()) {
+            this->heapify();
+        }
+
+        this->point_allocator.resetCount();
+    }
+
+    void siftDownRoot();
+
+    void registerAsNeighbor();
+
+    void registerAsNeighborIfCloser();
 };
