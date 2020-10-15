@@ -26,11 +26,16 @@ run: all
 small_test: all
 	./program2 $(NUM_THREADS) data/training_1000_3.dat data/query_18211359.dat small_results.out
 
+big_test: all
+	./program2 $(NUM_THREADS) data/training_16777216_5.dat data/query_1_5_10.dat big_results.out
+	#./program2 8 data/training_16777216_5.dat data/query_1_5_10.dat big_results_multithreaded.out
+	#python3 scripts/solver.py data/training_16777216_5.dat data/query_1_5_10.dat sklearn_big_results.out
+
 memcheck: all
 	valgrind $(VFLAGS) ./program2 $(NUM_THREADS) data/training_1000_3.dat data/query_18211359.dat results_memcheck.out
 
 clean:
-	rm *.o program2 results.out
+	rm *.o program2 results.out big_results.out sklearn_big_results.out
 
 performance_test: all
 	for i in 1 2 3 4 5 6 7 8 9 10; do \
