@@ -61,7 +61,7 @@ void KDTree::nearestNeighborsSearch(const float* query_point, KNNQueue& queue) c
 template <bool CheckIfFull>
 void KDTree::nearestNeighborsSearch(const float* query_point, std::size_t begin, std::size_t end, std::size_t depth, KNNQueue& nearest_neighbors) const {
     std::size_t range = end - begin;
-    std::size_t traverser_index = begin + (range >> 1u);
+    std::size_t traverser_index = begin + (range / 2);
 
     this->readPointAt(nearest_neighbors.getPotentialNeighbor(), traverser_index);
 
@@ -75,7 +75,7 @@ void KDTree::nearestNeighborsSearch(const float* query_point, std::size_t begin,
             return this->nearestNeighborsSearch<false>(query_point, begin, end, depth, nearest_neighbors);
         }
 
-        nearest_neighbors.registerAsNeighbor();
+        nearest_neighbors.registerAsNeighbor(traverser_index);
 
         // Base case - If there's two elements left, the 2nd element has already been tested. Thus, we simply register the
         // 1st element and stop recursing.
@@ -83,11 +83,11 @@ void KDTree::nearestNeighborsSearch(const float* query_point, std::size_t begin,
             this->readPointAt(nearest_neighbors.getPotentialNeighbor(), traverser_index - 1);
 
             if (nearest_neighbors.full()) {
-                nearest_neighbors.registerAsNeighborIfCloser();
+                nearest_neighbors.registerAsNeighborIfCloser(traverser_index);
             }
 
             else {
-                nearest_neighbors.registerAsNeighbor();
+                nearest_neighbors.registerAsNeighbor(traverser_index);
             }
 
             return;
@@ -95,14 +95,14 @@ void KDTree::nearestNeighborsSearch(const float* query_point, std::size_t begin,
     }
 
     else {
-        nearest_neighbors.registerAsNeighborIfCloser();
+        nearest_neighbors.registerAsNeighborIfCloser(traverser_index);
 
         // Base case - If there's two elements left, the 2nd element has already been tested. Thus, we simply register the
         // 1st element and stop recursing.
         if (range == 2) {
             this->readPointAt(nearest_neighbors.getPotentialNeighbor(), traverser_index - 1);
 
-            nearest_neighbors.registerAsNeighborIfCloser();
+            nearest_neighbors.registerAsNeighborIfCloser(traverser_index);
             return;
         }
     }

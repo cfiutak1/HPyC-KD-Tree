@@ -40,17 +40,10 @@ void KNNQueue::siftDownRoot() {
  * Does not keep the array heapified, but does keep the farthest element from the query point at i=0.
  * Assumes that the array is not full.
  */
-void KNNQueue::registerAsNeighbor() {
-    double distance_from_query = this->distanceFromPotentialNeighbor();
+void KNNQueue::registerAsNeighbor(std::size_t index) {
+    double distance_from_query = distanceBetween(this->query_point, this->potential_neighbor, this->num_dimensions);
 
-    // Swap the memory in the empty neighbor at i=current_size with the memory containing the potential neighbor.
-    std::swap_ranges(
-        this->array[current_size].point,
-        this->array[current_size].point + this->num_dimensions,
-        this->getPotentialNeighbor()
-    );
-
-    // Add the distance to the neighbor object at i=current_size.
+    this->array[current_size].index = index;
     this->array[this->current_size].distance_from_queried_point = distance_from_query;
 
     // Swap the new neighbor with the neighbor at i=0 if its distance from the query point is greater.
@@ -63,18 +56,13 @@ void KNNQueue::registerAsNeighbor() {
 }
 
 
-void KNNQueue::registerAsNeighborIfCloser() {
-    double distance_from_query = distanceBetween(this->query_point, this->getPotentialNeighbor(), this->num_dimensions);
-
+void KNNQueue::registerAsNeighborIfCloser(std::size_t index) {
     // If the priority queue is at capacity and the potential neighbor is closer to the query point than the current
     // furthest neighbor, remove the furthest neighbor from the priority queue and push the potential neighbor.
-    if (this->closerThanFarthestNeighbor(distance_from_query)) {
-        std::swap_ranges(
-            this->array[0].point,
-            this->array[0].point + this->num_dimensions,
-            this->getPotentialNeighbor()
-        );
+    double distance_from_query = distanceBetween(this->query_point, this->potential_neighbor, this->num_dimensions);
 
+    if (this->closerThanFarthestNeighbor(distance_from_query)) {
+        this->array[0].index = index;
         this->array[0].distance_from_queried_point = distance_from_query;
 
         this->siftDownRoot();

@@ -28,10 +28,10 @@ inline double distanceBetween(const float* p1, const float* p2, const std::size_
 class KNNQueue {
 private:
     const float* query_point;
+    float* potential_neighbor;
     std::size_t num_neighbors;
     std::size_t num_dimensions;
     std::size_t current_size = 0;
-    NeighborPointRecycler& point_allocator;
 
     friend class ThreadSafeKNNQueue;
 
@@ -44,21 +44,18 @@ public:
 
     KNNQueue() = delete;
 
-    KNNQueue(const float* query_point_in, const std::size_t num_neighbors_in, const std::size_t num_dimensions_in, NeighborPointRecycler& point_allocator_in):
+    KNNQueue(const float* query_point_in, const std::size_t num_neighbors_in, const std::size_t num_dimensions_in):
         query_point(query_point_in),
         num_neighbors(num_neighbors_in),
-        num_dimensions(num_dimensions_in),
-        point_allocator(point_allocator_in)
+        num_dimensions(num_dimensions_in)
     {
         this->array = new Neighbor[num_neighbors_in];
-
-        for (std::size_t i = 0; i < this->num_neighbors; ++i) {
-            this->array[i] = Neighbor(this->point_allocator.getPoint());
-        }
+        this->potential_neighbor = new float[num_dimensions_in];
     }
 
     ~KNNQueue() {
-        delete[] this->array;
+//        delete[] this->array;
+        delete[] this->potential_neighbor;
     }
 
     inline bool empty() const {
@@ -74,7 +71,7 @@ public:
     }
 
     inline float* getPotentialNeighbor() const {
-        return this->point_allocator.potential_neighbor;
+        return this->potential_neighbor;
     }
 
     inline double distanceFromPotentialNeighbor() {
@@ -89,18 +86,17 @@ public:
      * Heapifies the array if the array hasn't been heapified yet and returns the memory to the point recycler.
      */
     inline void validate() {
-        if (!this->full()) {
-            this->heapify();
-        }
-
-        this->point_allocator.resetCount();
+//        if (!this->full()) {
+//            this->heapify();
+//        }
+        std::sort(this->array, this->array + this->num_neighbors);
     }
 
     void siftDownRoot();
 
-    void registerAsNeighbor();
+    void registerAsNeighbor(std::size_t index);
 
-    void registerAsNeighborIfCloser();
+    void registerAsNeighborIfCloser(std::size_t index);
 };
 
 }
