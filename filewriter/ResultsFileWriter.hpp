@@ -59,14 +59,14 @@ public:
     }
 
 
-    void writeQueryResults(KNNQueue& nearest_neighbors) {
-        std::sort(nearest_neighbors.array, nearest_neighbors.array + this->query_file_data->num_neighbors, std::greater<>());
-
-        for (std::size_t i = this->query_file_data->num_neighbors; i > 0; --i) {
-            for (std::size_t j = 0; j < this->query_file_data->num_dimensions; ++j) {
-                this->results_file.write(reinterpret_cast<const char*>(&(nearest_neighbors.array[i - 1].point[j])), 4);
-            }
-
-        }
-    }
+//    void writeQueryResults(KNNQueue& nearest_neighbors) {
+//        std::sort(nearest_neighbors.array, nearest_neighbors.array + this->query_file_data->num_neighbors, std::greater<>());
+//
+//        for (std::size_t i = this->query_file_data->num_neighbors; i > 0; --i) {
+//            for (std::size_t j = 0; j < this->query_file_data->num_dimensions; ++j) {
+//                this->results_file.write(reinterpret_cast<const char*>(&(nearest_neighbors.array[i - 1].point[j])), 4);
+//            }
+//
+//        }
+//    }
 };

@@ -48,7 +48,7 @@ void runSingleThreaded(TrainingFileProcessor& training_file_processor, QueryFile
 
     auto build_start = std::chrono::steady_clock::now();
 
-    KDTree* tree = new KDTree(training_points, training_file_data->num_points, training_file_data->num_dimensions);
+    hpyc::KDTree<float>* tree = new hpyc::KDTree<float>(training_points, training_file_data->num_points, training_file_data->num_dimensions);
 
     auto file_read_and_build_end = std::chrono::steady_clock::now();
     auto build_end = std::chrono::steady_clock::now();
@@ -58,26 +58,26 @@ void runSingleThreaded(TrainingFileProcessor& training_file_processor, QueryFile
     printf("build %f\n", build_diff.count());
 
 
-    QueryFileData* query_file_data = query_file_processor.readQueryFileHeader();
-    alignas(32) float** query_points = query_file_processor.readPointsRowCol();
+//    QueryFileData* query_file_data = query_file_processor.readQueryFileHeader();
+//    alignas(32) float** query_points = query_file_processor.readPointsRowCol();
+//
+//    auto query_and_file_out_start = std::chrono::steady_clock::now();
+//    ResultsFileWriter writer(result_file_name, training_file_data, query_file_data);
+//    writer.writeFileHeader();
 
-    auto query_and_file_out_start = std::chrono::steady_clock::now();
-    ResultsFileWriter writer(result_file_name, training_file_data, query_file_data);
-    writer.writeFileHeader();
+//    NeighborPointRecycler point_allocator(training_file_data->num_dimensions, query_file_data->num_neighbors);
 
-    NeighborPointRecycler point_allocator(training_file_data->num_dimensions, query_file_data->num_neighbors);
-
-    for (uint64_t i = 0; i < query_file_data->num_points; ++i) {
-        KNNQueue results(query_points[i], query_file_data->num_neighbors, query_file_data->num_dimensions, point_allocator);
-        tree->nearestNeighborsSearch(query_points[i], results);
-        writer.writeQueryResults(results);
-    }
-
-    auto query_and_file_out_end = std::chrono::steady_clock::now();
-    std::chrono::duration<double> query_and_file_out_diff = (query_and_file_out_end - query_and_file_out_start);
-    printf("query_and_file_out %f\n", query_and_file_out_diff.count());
-
-    cleanup(training_file_data, query_file_data, training_points, query_points, tree);
+//    for (uint64_t i = 0; i < query_file_data->num_points; ++i) {
+////        KNNQueue results(query_points[i], query_file_data->num_neighbors, query_file_data->num_dimensions, point_allocator);
+//        tree->nearestNeighborsSearch(query_points[i], results);
+//        writer.writeQueryResults(results);
+//    }
+//
+//    auto query_and_file_out_end = std::chrono::steady_clock::now();
+//    std::chrono::duration<double> query_and_file_out_diff = (query_and_file_out_end - query_and_file_out_start);
+//    printf("query_and_file_out %f\n", query_and_file_out_diff.count());
+//
+//    cleanup(training_file_data, query_file_data, training_points, query_points, tree);
 }
 
 
@@ -85,11 +85,13 @@ void runSingleThreadedOneQuery(TrainingFileProcessor& training_file_processor, Q
 //    auto file_read_and_build_start = std::chrono::steady_clock::now();
 
     TrainingFileData* training_file_data = training_file_processor.readTrainingFileHeader();
-    alignas(32) float** training_points = training_file_processor.readPointsColRow();
-
+//    alignas(32) float** training_points = training_file_processor.readPointsColRow();
+//    printf("%s:%d\n", __FILE__, __LINE__);
+    alignas(32) float* training_points = training_file_processor.readPoints1D();
+//    printf("%s:%d\n", __FILE__, __LINE__);
     auto build_start = std::chrono::steady_clock::now();
 
-    KDTree* tree = new KDTree(training_points, training_file_data->num_points, training_file_data->num_dimensions);
+    hpyc::KDTree<float> tree(training_points, training_file_data->num_points, training_file_data->num_dimensions);
 
 //    auto file_read_and_build_end = std::chrono::steady_clock::now();
     auto build_end = std::chrono::steady_clock::now();
@@ -101,33 +103,41 @@ void runSingleThreadedOneQuery(TrainingFileProcessor& training_file_processor, Q
 
     QueryFileData* query_file_data = query_file_processor.readQueryFileHeader();
     alignas(32) float** query_point = query_file_processor.readPointsRowCol();
-
-//    auto query_and_file_out_start = std::chrono::steady_clock::now();
+//
+////    auto query_and_file_out_start = std::chrono::steady_clock::now();
     ResultsFileWriter writer(result_file_name, training_file_data, query_file_data);
     writer.writeFileHeader();
 
-    NeighborPointRecycler point_allocator(training_file_data->num_dimensions, query_file_data->num_neighbors);
 
     auto query_start = std::chrono::steady_clock::now();
-    KNNQueue results(query_point[0], query_file_data->num_neighbors, query_file_data->num_dimensions, point_allocator);
-    tree->nearestNeighborsSearch(query_point[0], results);
+
+    long* indices = new long[query_file_data->num_neighbors];
+    double* distances = new double[query_file_data->num_neighbors];
+
+    tree.nearestNeighborsSearch(query_point[0], query_file_data->num_neighbors, indices, distances);
 
     auto query_end = std::chrono::steady_clock::now();
 
     std::chrono::duration<double> query_diff = (query_end - query_start);
-//    printf("query %f\n", query_diff.count());
+    printf("query %f\n", query_diff.count());
 
-    printf("%lu, %f, %f\n", training_file_data->num_points, build_diff.count(), query_diff.count());
+    for (std::size_t i = 0; i < query_file_data->num_dimensions; ++i) {
+        printf("%f ", distances[i]);
+    }
 
-
-    writer.writeQueryResults(results);
-
-
-//    auto query_and_file_out_end = std::chrono::steady_clock::now();
-//    std::chrono::duration<double> query_and_file_out_diff = (query_and_file_out_end - query_and_file_out_start);
-//    printf("query_and_file_out %f\n", query_and_file_out_diff.count());
-
-    cleanup(training_file_data, query_file_data, training_points, query_point, tree);
+    printf("\n");
+//
+//    printf("%lu, %f, %f\n", training_file_data->num_points, build_diff.count(), query_diff.count());
+//
+//
+//    writer.writeQueryResults(results);
+//
+//
+////    auto query_and_file_out_end = std::chrono::steady_clock::now();
+////    std::chrono::duration<double> query_and_file_out_diff = (query_and_file_out_end - query_and_file_out_start);
+////    printf("query_and_file_out %f\n", query_and_file_out_diff.count());
+//
+//    cleanup(training_file_data, query_file_data, training_points, query_point, tree);
 }
 
 
