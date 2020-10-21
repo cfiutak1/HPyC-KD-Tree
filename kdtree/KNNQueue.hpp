@@ -86,6 +86,7 @@ public:
      * Heapifies the array if the array hasn't been heapified yet and returns the memory to the point recycler.
      */
     inline void sortArray() {
+        // TODO doing a lot of extra work here, can optimize
         std::sort(this->array, this->array + this->num_neighbors, std::greater_equal<>());
     }
 

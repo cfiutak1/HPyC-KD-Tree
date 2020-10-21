@@ -11,12 +11,9 @@ namespace hpyc {
 
 template <typename ItemT>
 class KDTree {
-private:
-    friend class ParallelKDTree;
-
+public:
     alignas(64) ItemT* np_array;
     alignas(64) ItemT** nodes;
-
 
     void buildTree(const std::size_t subarray_begin, const std::size_t subarray_end, const unsigned int depth);
 
@@ -26,13 +23,13 @@ private:
     inline void swap(std::size_t index1, std::size_t index2) {
         for (std::size_t i = 0; i < this->num_dimensions; ++i) {
             std::swap(
-                this->nodes[i][index1],
-                this->nodes[i][index2]
+                    this->nodes[i][index1],
+                    this->nodes[i][index2]
             );
         }
     }
 
-public:
+
     std::size_t num_points;
     std::size_t num_dimensions;
 
@@ -46,6 +43,7 @@ public:
 
         std::memcpy(this->np_array, np_array_in, sizeof(ItemT) * num_points_in * num_dimensions_in);
 
+        // TODO get rid of this copy
         this->nodes = new ItemT*[num_dimensions_in];
 
         for (std::size_t i = 0; i < num_dimensions_in; ++i) {
@@ -76,7 +74,7 @@ public:
         }
     }
 
-    void nearestNeighborsSearch(ItemT* query_point, const std::size_t num_neighbors, long* indices, double* distances) const;
+    void nearestNeighborsSearch(const ItemT* query_point, const std::size_t num_neighbors, std::size_t* indices, double* distances) const;
 };
 
 
@@ -126,7 +124,7 @@ void KDTree<ItemT>::buildTree(const std::size_t subarray_begin, const std::size_
  * wrapper for the private recursive nearestNeighborsSearch().
  */
 template <typename ItemT>
-void KDTree<ItemT>::nearestNeighborsSearch(ItemT* query_point, const std::size_t num_neighbors, long* indices, double* distances) const {
+void KDTree<ItemT>::nearestNeighborsSearch(const ItemT* query_point, const std::size_t num_neighbors, std::size_t* indices, double* distances) const {
     KNNQueue<ItemT> queue(query_point, num_neighbors, this->num_dimensions);
 
     this->nearestNeighborsSearch(query_point, 0, this->num_points, 0, queue);
