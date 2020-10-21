@@ -1,11 +1,10 @@
-#include "filedata/TrainingFileData.hpp"
-#include "filedata/QueryFileData.hpp"
-#include "fileprocessor/QueryFileProcessor.hpp"
-#include "fileprocessor/TrainingFileProcessor.hpp"
-#include "filewriter/ResultsFileWriter.hpp"
-#include "kdtree/KDTree.hpp"
-#include "kdtree/KNNQueue.hpp"
-#include "parallel_kdtree/ParallelKDTree.hpp"
+#include "src/filedata/TrainingFileData.hpp"
+#include "src/filedata/QueryFileData.hpp"
+#include "src/fileprocessor/QueryFileProcessor.hpp"
+#include "src/fileprocessor/TrainingFileProcessor.hpp"
+#include "src/filewriter/ResultsFileWriter.hpp"
+#include "src/kdtree/KDTree.hpp"
+#include "src/parallel_kdtree/ParallelKDTree.hpp"
 
 #include <cstdlib>
 #include <cstdio>
