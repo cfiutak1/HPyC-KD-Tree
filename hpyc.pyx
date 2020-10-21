@@ -6,7 +6,7 @@ from cython cimport view
 from libcpp cimport bool
 
 
-cdef extern from "kdtree/KDTree.hpp" namespace "hpyc":
+cdef extern from "src/kdtree/KDTree.hpp" namespace "hpyc":
     cdef cppclass KDTree[ItemT]:
         size_t num_dimensions
         KDTree(ItemT* nodes_in, const size_t num_points_in, const size_t num_dimensions_in) except +
@@ -14,7 +14,7 @@ cdef extern from "kdtree/KDTree.hpp" namespace "hpyc":
         void readPointAt(ItemT* point, const size_t index)
 
 
-cdef extern from "parallel_kdtree/ParallelKDTree.hpp" namespace "hpyc":
+cdef extern from "src/parallel_kdtree/ParallelKDTree.hpp" namespace "hpyc":
     cdef cppclass ParallelKDTree[ItemT]:
         KDTree[ItemT]* tree
         size_t num_dimensions
