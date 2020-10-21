@@ -126,8 +126,8 @@ def generate_results_file_one_query(training_points: List[List[float]], query_po
 
     # print(f"sklearn query and file IO took {time.time() - t}")
 
-
     results_file.close()
+
 
 def main():
     if len(sys.argv) != 4:

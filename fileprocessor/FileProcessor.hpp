@@ -21,6 +21,24 @@ public:
         if (this->input_stream) { this->input_stream.close(); }
     }
 
+    float* readPoints1D() {
+        std::size_t num_points = this->file_data->num_points;
+        alignas(32) float* points = new float[num_points * this->file_data->num_dimensions];
+
+        for (std::size_t i = 0; i < num_points; ++i) {
+            for (std::size_t j = 0; j < this->file_data->num_dimensions; ++j) {
+                float* f = points + ((num_points * j) + i);
+
+                this->input_stream.read(
+                    (char*) f,
+                    sizeof(float)
+                );
+            }
+        }
+
+        return points;
+    }
+
     float** readPointsRowCol() {
         std::size_t num_points = this->file_data->num_points;
 

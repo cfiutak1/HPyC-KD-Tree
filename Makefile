@@ -1,24 +1,25 @@
-CFLAGS = -Wall -Wextra -pedantic -std=c++17 -flto -pthread -fopenmp -O3 -mtune=native
+CFLAGS = -Wall -Wextra -pedantic -std=c++17 -flto -pthread -fopenmp -O3 -march=native -g
 CDEBUGFLAGS = -g -DDEBUG
 CC = g++
+PYFLAGS = -pthread -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -g -fwrapv -O2 -g -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -Wall -Wextra -pedantic -std=c++17 -flto -pthread -fopenmp -O3 -march=native -fno-wrapv
 VFLAGS = --leak-check=full --track-origins=yes --show-leak-kinds=all -v
 NUM_THREADS = 1
 
 
-all: main.o KDTree.o KNNQueue.o
-	$(CC) $(CFLAGS) KNNQueue.o KDTree.o main.o -o program2
+all: main.o
+	$(CC) $(PYFLAGS) main.o -o program2
 
 main.o: main.cpp
-	$(CC) $(CFLAGS) -c main.cpp
+	$(CC) $(PYFLAGS) -c main.cpp
 
-KDTree.o: kdtree/KDTree.hpp kdtree/KDTree.cpp
-	$(CC) $(CFLAGS) -c kdtree/KDTree.cpp
-
-ParallelKDTree.o: parallel_kdtree/ParallelKDTree.hpp parallel_kdtree/ParallelKDTree.cpp
-	$(CC) $(CFLAGS) -c parallel_kdtree/ParallelKDTree.cpp
-
-KNNQueue.o: kdtree/KNNQueue.hpp kdtree/KNNQueue.cpp
-	$(CC) $(CFLAGS) -c kdtree/KNNQueue.cpp
+#KDTree.o: kdtree/KDTree.hpp kdtree/KDTree.cpp
+#	$(CC) $(CFLAGS) -c kdtree/KDTree.cpp
+#
+#ParallelKDTree.o: parallel_kdtree/ParallelKDTree.hpp parallel_kdtree/ParallelKDTree.cpp
+#	$(CC) $(CFLAGS) -c parallel_kdtree/ParallelKDTree.cpp
+#
+#KNNQueue.o: kdtree/KNNQueue.hpp kdtree/KNNQueue.cpp
+#	$(CC) $(CFLAGS) -c kdtree/KNNQueue.cpp
 
 run: all
 	./program2 $(NUM_THREADS) data/training_10000000_5.dat data/query_100000_5_10.dat results.out
