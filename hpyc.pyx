@@ -82,13 +82,12 @@ cdef class NumpyDoubleKDTree:
         del self.thisptr
 
     def nearest_neighbors(self, double[::1] query_point, long num_neighbors):
-        cdef size_t[::1] indices = np.empty(num_neighbors, dtype=np.int64)
+        cdef size_t[::1] indices = np.empty(num_neighbors, dtype=np.uint64)
         cdef double[::1] distances = np.empty(num_neighbors, dtype=np.float64)
 
         self.thisptr.nearestNeighborsSearch(&query_point[0], num_neighbors, &indices[0], &distances[0])
 
         return np.asarray(indices), np.asarray(distances)
-
 
 class PyKDTree:
     def __init__(self, nodes_in):

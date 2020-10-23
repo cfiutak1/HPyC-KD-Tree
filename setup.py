@@ -1,7 +1,31 @@
 from distutils.core import setup, Extension
 from Cython.Build import cythonize
-# from Cython.Compiler.Main import default_options
-# default_options['emit_linenums'] = True
+# from distutils.sysconfig import get_config_vars as default_get_config_vars
+# default_arguments = default_get_config_vars()
+
+# print(default_get_config_vars('CC', 'CXX', 'CFLAGS',
+#                 'CCSHARED', 'LDSHARED', 'SHLIB_SUFFIX', 'AR', 'ARFLAGS',
+#                 'CONFIGURE_CPPFLAGS', 'CONFIGURE_CFLAGS', 'CONFIGURE_LDFLAGS'))
+# def foo(*args):
+#     res = default_get_config_vars(*args)
+#
+#     # print(type(res))
+#     # assert isinstance(res, list)
+#
+#     # print(res)
+#
+#     if isinstance(res, list):
+#         res[-1] += (" ".join(CFLAGS))
+#         res = [s.replace("-O2", "-O3").replace("-O1", "-O3") for s in res]
+#
+#     elif isinstance(res, dict):
+#         res = {k: v.replace("-O2", "-O3") for k, v in res.items() if isinstance(v, str)}
+#
+#     return res
+#
+# import distutils.sysconfig as dsc
+# dsc.get_config_vars = foo
+
 
 CFLAGS = ["-Wall", "-Wextra", "-pedantic", "-std=c++17", "-flto", "-pthread", "-fopenmp", "-O3", "-march=native", "-fno-wrapv"]
 

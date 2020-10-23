@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <chrono>
 
 #pragma once
 
@@ -43,14 +44,20 @@ public:
 
         std::memcpy(this->np_array, np_array_in, sizeof(ItemT) * num_points_in * num_dimensions_in);
 
-        // TODO get rid of this copy
+        // TODO get rid of this copy? Need to work out whether the user is okay w/ sacrificing their existing array
         this->nodes = new ItemT*[num_dimensions_in];
 
         for (std::size_t i = 0; i < num_dimensions_in; ++i) {
             this->nodes[i] = np_array_in + (i * num_points_in);
         }
 
+        auto build_start = std::chrono::steady_clock::now();
+
         this->buildTree(0, num_points_in, 0);
+
+        auto build_end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> build_diff = (build_end - build_start);
+        printf("build %f\n", build_diff.count());
     }
 
 
