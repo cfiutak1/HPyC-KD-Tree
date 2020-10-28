@@ -11,8 +11,8 @@ import scripts.training_utils
 def run_hpyc_benchmark(tree_size):
     print(tree_size)
     # TODO - The cython code doesn't seem to modify the actual numpy arrays - is that the slowdown?
-    training_points = scripts.training_utils.read_training_file(f"/home/colin/HPyC-KD-Tree/data/training_{tree_size}_5.dat")
-    query_points, num_neighbors = scripts.query_utils.read_query_file("/home/colin/HPyC-KD-Tree/data/query_1_5_10.dat")
+    training_points = scripts.training_utils.read_training_file(f"./data/training/uniform/{tree_size}_5.dat")
+    query_points, num_neighbors = scripts.query_utils.read_query_file("./data/query/uniform/1_5_10.dat")
 
     print("Done reading data")
 
@@ -30,8 +30,8 @@ def run_hpyc_benchmark(tree_size):
 
 
 def run_sklearn_benchmark(tree_size):
-    training_points = scripts.training_utils.read_training_file(f"/home/colin/HPyC-KD-Tree/data/training_{tree_size}_5.dat")
-    query_points, num_neighbors = scripts.query_utils.read_query_file("/home/colin/HPyC-KD-Tree/data/query_1_5_10.dat")
+    training_points = scripts.training_utils.read_training_file(f"./data/training/uniform/{tree_size}_5.dat")
+    query_points, num_neighbors = scripts.query_utils.read_query_file("./data/query/uniform/1_5_10.dat")
 
     build_start = time.time()
     tree = sklearn.neighbors.KDTree(training_points)
@@ -60,15 +60,16 @@ def run_benchmarks(benchmark_function, tree_size, num_trials):
 
 def main():
     num_trials = 1
+    num_points = 1 << 24
 
-    for i in range(24, 25):
-        run_benchmarks(run_hpyc_benchmark, 1 << i, num_trials)
-        # run_benchmarks(run_sklearn_benchmark, 1 << i, num_trials)
+    run_benchmarks(run_hpyc_benchmark, num_points, num_trials)
+    # run_benchmarks(run_sklearn_benchmark, 1 << i, num_trials)
 
-        print()
+    print()
 
 
 if __name__ == "__main__":
     main()
+
 
 

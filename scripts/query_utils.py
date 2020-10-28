@@ -1,6 +1,6 @@
 import argparse
 import struct
-import scripts.shared_file_utils
+from scripts.shared_file_utils import *
 import numpy as np
 
 
@@ -23,26 +23,24 @@ def get_query_generation_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def generate_query_file(query_args: argparse.ArgumentParser):
-    args = query_args.parse_args()
-
-    query_file_name = f"../data/query/{distribution_name_map[args.distribution]}/{args.num_points}_{args.num_dimensions}_{args.num_neighbors}.dat"
+def generate_query_file(num_queries, num_dimensions, num_neighbors, distribution):
+    query_file_name = f"./data/query/{distribution_name_map[distribution]}/{num_queries}_{num_dimensions}_{num_neighbors}.dat"
 
     query_fptr = open(query_file_name, "wb")
 
     # Write query file header
     query_fptr.write(b"QUERY\0\0\0")
     query_fptr.write(struct.pack("=q", 0))
-    query_fptr.write(struct.pack("=q", args.num_points))
-    query_fptr.write(struct.pack("=q", args.num_dimensions))
-    query_fptr.write(struct.pack("=q", args.num_neighbors))
+    query_fptr.write(struct.pack("=q", num_queries))
+    query_fptr.write(struct.pack("=q", num_dimensions))
+    query_fptr.write(struct.pack("=q", num_neighbors))
 
     # Write query file data
-    for i in range(0, args.num_points):
+    for i in range(0, num_queries):
         buff = bytes()
 
-        for j in range(0, args.num_dimensions):
-            buff += struct.pack("=f", random_funcs[args.distribution](*random_func_params[args.distribution]))
+        for j in range(0, num_dimensions):
+            buff += struct.pack("=f", random_funcs[distribution](*random_func_params[distribution]))
 
         query_fptr.write(buff)
 
@@ -60,7 +58,7 @@ def read_query_file(query_file_name: str) -> (np.ndarray, int):
     num_neighbors = struct.unpack("Q", query_file.read(8))[0]
 
     points = [struct.unpack("f" * num_dimensions, query_file.read(4 * num_dimensions)) for i in range(num_queries)]
-    points = np.asarray(points)
+    points = np.asarray(points, dtype=np.float32)
 
     query_file.close()
 

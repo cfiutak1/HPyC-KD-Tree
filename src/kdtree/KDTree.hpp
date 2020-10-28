@@ -14,7 +14,10 @@ template <typename ItemT>
 class KDTree {
 public:
     alignas(64) ItemT* np_array;
-    alignas(64) ItemT** nodes;
+    ItemT** nodes;
+    std::size_t num_points;
+    std::size_t num_dimensions;
+
 
     void buildTree(const std::size_t subarray_begin, const std::size_t subarray_end, const unsigned int depth);
 
@@ -24,27 +27,25 @@ public:
     inline void swap(std::size_t index1, std::size_t index2) {
         for (std::size_t i = 0; i < this->num_dimensions; ++i) {
             std::swap(
-                    this->nodes[i][index1],
-                    this->nodes[i][index2]
+                this->nodes[i][index1],
+                this->nodes[i][index2]
             );
         }
     }
 
-
-    std::size_t num_points;
-    std::size_t num_dimensions;
-
     KDTree() = default;
 
+
     KDTree(ItemT* np_array_in, const std::size_t num_points_in, const std::size_t num_dimensions_in):
+        np_array(np_array_in),
         num_points(num_points_in),
         num_dimensions(num_dimensions_in)
     {
+        // TODO get rid of this copy? Need to work out whether the user is okay w/ sacrificing their existing array.
         this->np_array = new ItemT[num_points_in * num_dimensions_in];
-
         std::memcpy(this->np_array, np_array_in, sizeof(ItemT) * num_points_in * num_dimensions_in);
 
-        // TODO get rid of this copy? Need to work out whether the user is okay w/ sacrificing their existing array
+        // Create a column-major representation for compatibility with implemented Quickselect method.
         this->nodes = new ItemT*[num_dimensions_in];
 
         for (std::size_t i = 0; i < num_dimensions_in; ++i) {
@@ -238,5 +239,3 @@ void KDTree<ItemT>::nearestNeighborsSearch(const ItemT* query_point, std::size_t
     }
 }
 }
-
-

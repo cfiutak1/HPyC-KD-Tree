@@ -23,7 +23,7 @@ public:
 
     float* readPoints1D() {
         std::size_t num_points = this->file_data->num_points;
-        alignas(32) float* points = new float[num_points * this->file_data->num_dimensions];
+        float* points = new float[num_points * this->file_data->num_dimensions];
 
         for (std::size_t i = 0; i < num_points; ++i) {
             for (std::size_t j = 0; j < this->file_data->num_dimensions; ++j) {
@@ -42,7 +42,7 @@ public:
     float** readPointsRowCol() {
         std::size_t num_points = this->file_data->num_points;
 
-        alignas(32) float** points = new float*[num_points];
+        float** points = new float*[num_points];
 
         for (std::size_t i = 0; i < num_points; i++) {
             if (this->input_stream) {

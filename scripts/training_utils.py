@@ -1,7 +1,7 @@
 import argparse
 import struct
 import numpy as np
-import scripts.shared_file_utils
+from scripts.shared_file_utils import *
 
 
 def get_training_generation_arg_parser() -> argparse.ArgumentParser:
@@ -22,25 +22,23 @@ def get_training_generation_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def generate_training_file(training_args: argparse.ArgumentParser) -> None:
-    args = training_args.parse_args()
-
-    training_file_name = f"../data/training/{distribution_name_map[args.distribution]}/{args.rows}_{args.cols}.dat"
+def generate_training_file(num_points, num_dimensions, distribution) -> None:
+    training_file_name = f"./data/training/{distribution_name_map[distribution]}/{num_points}_{num_dimensions}.dat"
 
     training_fptr = open(training_file_name, "wb")
 
     # Write training file header
     training_fptr.write(b"TRAINING")
     training_fptr.write(struct.pack("=q", 0))
-    training_fptr.write(struct.pack("=q", args.num_points))
-    training_fptr.write(struct.pack("=q", args.num_dimensions))
+    training_fptr.write(struct.pack("=q", num_points))
+    training_fptr.write(struct.pack("=q", num_dimensions))
 
     # Write training file data
-    for i in range(0, args.num_points):
+    for i in range(0, num_points):
         buff = bytes()
 
-        for j in range(0, args.num_dimensions):
-            buff += struct.pack("=f", random_funcs[args.distribution](*random_func_params[args.distribution]))
+        for j in range(0, num_dimensions):
+            buff += struct.pack("=f", random_funcs[distribution](*random_func_params[distribution]))
 
         training_fptr.write(buff)
 
@@ -57,7 +55,7 @@ def read_training_file(training_file_name: str) -> np.ndarray:
     num_dimensions = struct.unpack("Q", training_file.read(8))[0]
 
     points = [struct.unpack("f" * num_dimensions, training_file.read(4 * num_dimensions)) for i in range(num_points)]
-    points = np.asarray(points)
+    points = np.asarray(points, dtype=np.float32)
 
     training_file.close()
 
