@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstdint>
+//#include <chrono>
 
 #pragma once
 
@@ -30,12 +31,16 @@ public:
 
 
     inline void swap(const std::size_t index1, const std::size_t index2) {
+//        auto qs_start = std::chrono::steady_clock::now();
         for (std::size_t i = 0; i < this->num_dimensions; ++i) {
             std::swap(
                 this->nodes[i][index1],
                 this->nodes[i][index2]
             );
         }
+//        auto qs_end = std::chrono::steady_clock::now();
+//        std::chrono::duration<double> qs_diff = (qs_end - qs_start);
+//        printf("%.12f\n", qs_diff.count());
     }
 
 
@@ -109,6 +114,8 @@ public:
         std::size_t left_buffer_size = 0;
         std::size_t right_buffer_size = 0;
 
+
+
         // Iterate over the array chunk, populating the left and right swap buffers.
         for (size_t i = 0; i < remaining_unpartitioned_size / 2; ++i) {
             left_buffer[left_buffer_size] = i;
@@ -118,9 +125,12 @@ public:
             right_buffer_size += (this->cellAt(last_unpartitioned_item - i) < this->cellAt(pivot));
         }
 
+
         // The number of items to swap is the size of the smaller bucket.
         std::size_t num_mutual_swaps = std::min(left_buffer_size, right_buffer_size);
 
+
+//        auto qs_start = std::chrono::steady_clock::now();
         // Perform a mutual exchange of misplaced values.
         for (size_t i = 0; i < num_mutual_swaps; ++i) {
             this->swap(
@@ -128,6 +138,9 @@ public:
                 last_unpartitioned_item - right_buffer[i]
             );
         }
+//        auto qs_end = std::chrono::steady_clock::now();
+//        std::chrono::duration<double> qs_diff = (qs_end - qs_start);
+//        printf("%.10f\n", qs_diff.count());
 
         /*
          * Cleanup phase
@@ -202,6 +215,8 @@ public:
      * Returns the correctly positioned pivot from dynamicBlockPartition().
      */
     inline std::size_t staticBlockPartition(std::size_t pivot, std::size_t unpartitioned_range_begin, std::size_t unpartitioned_range_end) {
+//        auto qs_start = std::chrono::steady_clock::now();
+
         constexpr std::size_t BLOCK_PARTITION_THRESHOLD = BlockSize * 2;
 
         std::size_t last_item = unpartitioned_range_end - 1;
@@ -213,10 +228,13 @@ public:
 
         std::size_t num_mutual_swaps = 0;
 
+        std::size_t num_iters = 0;
+
         /*
          * Partitioning phase
          */
         while (static_cast<std::size_t>(last_item - unpartitioned_range_begin + 1) > BLOCK_PARTITION_THRESHOLD) {
+            ++num_iters;
             // If both buffers are empty, process the next left and right blocks, recording any indices which are not
             // correctly partitioned.
             if (left_buffer_size == 0 && right_buffer_size == 0) {
@@ -303,7 +321,23 @@ public:
         unpartitioned_range_begin -= left_buffer_size;
         last_item += right_buffer_size;
 
-        return dynamicBlockPartition(pivot, unpartitioned_range_begin, last_item, left_buffer, right_buffer);
+//        auto qs_end = std::chrono::steady_clock::now();
+//        std::chrono::duration<double> qs_diff = (qs_end - qs_start);
+
+//        if (unpartitioned_range_end - unpartitioned_range_begin > (1u << 18)) {
+//            printf("%lu, %f, %lu\n", unpartitioned_range_end - unpartitioned_range_begin, qs_diff.count(), num_iters);
+//        }
+
+//        qs_start = std::chrono::steady_clock::now();
+        auto ret = dynamicBlockPartition(pivot, unpartitioned_range_begin, last_item, left_buffer, right_buffer);
+//        qs_end = std::chrono::steady_clock::now();
+//        qs_diff = (qs_end - qs_start);
+
+//        if (unpartitioned_range_end - unpartitioned_range_begin > (1u << 18)) {
+//            printf("%lu, %.10f\n", unpartitioned_range_end - unpartitioned_range_begin, qs_diff.count());
+//        }
+
+        return ret;
     }
 
 
@@ -327,7 +361,7 @@ public:
 
         // The samples are moved to the beginning of the array, and of those samples, the pivot_pos-th largest sample is
         // chosen to be the pivot. The pivot position is determined by the size of k relative to the size of the chunk to partition.
-        ItemT pivot_ratio = ItemT(k) / chunk_size;
+        float pivot_ratio = float(k) / chunk_size;
         std::size_t pivot_pos = pivot_ratio * sample_size;
 
         // If the pivot position is large enough to make it viable, adjust the pivot position so that the pivot position is
@@ -351,9 +385,7 @@ public:
             else { pivot_pos -= offset; }
 
             // Adjust the sample size based on changes to the pivot position.
-            if (pivot_pos > 0) {
-                sample_size = std::ceil(ItemT(pivot_pos) / pivot_ratio);
-            }
+            sample_size = std::ceil(float(pivot_pos) / pivot_ratio);
         }
 
         // Use the beginning and end of (sample size / 2) cache lines as the samples.
