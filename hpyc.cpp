@@ -31,7 +31,7 @@ static int KDTree_init(KDTree* self, PyObject* args, PyObject* kwds) {
     }
 
     if (np_array_in == nullptr) {
-        PyErr_SetString(NumpyArraySummerError, "Invalid number of arguments passed to constructor");
+        PyErr_SetString(HPyCError, "Invalid number of arguments passed to constructor");
 
         return -1;
     }
@@ -39,7 +39,7 @@ static int KDTree_init(KDTree* self, PyObject* args, PyObject* kwds) {
     PyObject* temp = self->np_array;
     Py_INCREF(np_array_in);
     self->np_array = np_array_in;
-    Py_XDECREF(tmp);
+    Py_XDECREF(temp);
 
     // TODO create tree
     // TODO initialize num_dimensions and num_points
@@ -60,7 +60,7 @@ static int KDTree_init(KDTree* self, PyObject* args, PyObject* kwds) {
     self->num_dimensions = shape[0];
     self->num_points = shape[1];
 
-    self->tree = new KDTree<float>(data, self->num_points, self->num_dimensions);
+    self->tree = new hpyc::KDTree<float>(data, self->num_points, self->num_dimensions);
 
     return 0;
 }
@@ -97,8 +97,8 @@ static PyObject* KDTree_nearest_neighbors(KDTree* self, PyObject* args) {
 
     npy_float32* query_point = reinterpret_cast<npy_float32*>(query_point_obj->data);
 
-    std::size_t* indices = reinterpret_cast<PyArrayObject*>(indices_obj)->data;
-    float* distances = reinterpret_cast<PyArrayObject*>(distances_obj)->data;
+    std::size_t* indices = reinterpret_cast<std::size_t*>(reinterpret_cast<PyArrayObject*>(indices_obj)->data);
+    double* distances = reinterpret_cast<double*>(reinterpret_cast<PyArrayObject*>(distances_obj)->data);
 
     self->tree->nearestNeighborsSearch(
         query_point,
@@ -111,7 +111,7 @@ static PyObject* KDTree_nearest_neighbors(KDTree* self, PyObject* args) {
 }
 
 
-static PyMemberDef NumpyArraySummer_members[] = {
+static PyMemberDef KDTree_members[] = {
     {
         "np_array",
         T_OBJECT_EX,
@@ -165,15 +165,15 @@ static inline PyModuleDef hpyc_module_definition() {
 }
 
 
-static const PyModuleDef module_def = hpyc_module_definition();
-static const PyTypeObject kdtree_type_definition = KDTree_type_definition();
+static PyModuleDef module_def = hpyc_module_definition();
+static PyTypeObject kdtree_type_definition = KDTree_type_definition();
 
 
 PyMODINIT_FUNC PyInit_hpyc() {
     Py_Initialize();
     import_array();
 
-    if (PyType_Ready(reinterpret_cast<_typeobject*>(&NumpyArraySummerType)) < 0) {
+    if (PyType_Ready(reinterpret_cast<_typeobject*>(&kdtree_type_definition)) < 0) {
         return nullptr;
     }
 
@@ -186,7 +186,7 @@ PyMODINIT_FUNC PyInit_hpyc() {
     HPyCError = PyErr_NewException("hpyc.HPyCError", nullptr, nullptr);
     Py_XINCREF(HPyCError);
 
-    if (PyMOdule_AddObject(module, "Error creating module", HPyCError) < 0) {
+    if (PyModule_AddObject(module, "Error creating module", HPyCError) < 0) {
         Py_XDECREF(HPyCError);
         Py_CLEAR(HPyCError);
         Py_DECREF(module);
