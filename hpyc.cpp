@@ -75,5 +75,53 @@ static PyMethodDef KDTree_methods[] = {
         reinterpret_cast<PyCFunction>(KDTree_nearest_neighbors),
         METH_VARARGS,
         "Gets the nearest neighbors to a given point"
-    }
+    },
+    {nullptr} // Sentinel
 };
+
+
+static inline PyTypeObject KDTree_type_definition() {
+    static PyTypeObject type_definition = {
+        PyVarObject_HEAD_INIT(nullptr, 0)
+        "hpyc.KDTree",
+        sizeof(KDTree)
+    };
+
+    type_definition.tp_doc = "Numpy array summer";
+    type_definition.tp_basicsize = sizeof(KDTree);
+    type_definition.tp_itemsize = 0;
+    type_definition.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
+    type_definition.tp_new = PyType_GenericNew;
+    type_definition.tp_init = reinterpret_cast<initproc>(KDTree_init);
+    type_definition.tp_members = KDTree_members;
+    type_definition.tp_methods = KDTree_methods;
+
+    return type_definition;
+}
+
+
+static inline PyModuleDef hpyc_module_definition() {
+    static PyModuleDef module = {PyModuleDef_HEAD_INIT};
+
+    module.m_name = "hpyc";
+    module.m_doc = "Just the KD tree, for now.";
+    module.m_size = -1;
+
+    return module;
+}
+
+
+PyMODINIT_FUNC PyInit_hpyc() {
+    Py_Initialize();
+    import_array();
+
+    if (PyType_Ready(reinterpret_cast<_typeobject*>(&NumpyArraySummerType)) < 0) {
+        return nullptr;
+    }
+
+    PyObject* m = PyModule_Create(&module);
+
+    if (m == nullptr) {
+        return nullptr;
+    }
+}
