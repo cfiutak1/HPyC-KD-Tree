@@ -1,44 +1,36 @@
-CFLAGS = -Wall -Wextra -pedantic -std=c++17 -flto -pthread -fopenmp -O3 -march=native -g
+CFLAGS = -Wall -Wextra -pedantic -std=c++17 -pthread -fopenmp -O3 -march=native -g
 CDEBUGFLAGS = -g -DDEBUG
 CC = g++
-PYFLAGS = -pthread -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -g -fwrapv -O2 -g -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -Wall -Wextra -pedantic -std=c++17 -flto -pthread -fopenmp -O3 -march=native -fno-wrapv
+PYFLAGS = -pthread -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -g -fwrapv -O2 -g -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -Wall -Wextra -pedantic -std=c++17 -pthread -fopenmp -O3 -march=native -fno-wrapv -pthread -Wl,-O3 -Wl,-Bsymbolic-functions -Wl,-Bsymbolic-functions -Wl,-z,relro -g -fwrapv -O3 -Wl,-Bsymbolic-functions -Wl,-z,relro -g -fwrapv -O3 -Wall -Wextra -pedantic -std=c++17 -pthread -fopenmp -O3 -march=native -fno-wrapv -g -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -shared
+PYFLAGS2 = -pthread -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -g -fwrapv -O2 -g -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -Wall -Wextra -pedantic -std=c++17 -pthread -fopenmp -O3 -march=native -fno-wrapv -pthread -Wl,-O3 -Wl,-Bsymbolic-functions -Wl,-Bsymbolic-functions -Wl,-z,relro -g -fwrapv -O3 -Wl,-Bsymbolic-functions -Wl,-z,relro -g -fwrapv -O3 -Wall -Wextra -pedantic -std=c++17  -pthread -fopenmp -O3 -march=native -fno-wrapv -g -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2
 VFLAGS = --leak-check=full --track-origins=yes --show-leak-kinds=all -v
 NUM_THREADS = 1
 
+NUM_POINTS = 16777216
+
+TRAINING_FILE = data/training/uniform/$(NUM_POINTS)_5.dat
+QUERY_FILE = data/query/uniform/1_5_10.dat
 
 all: main.o
-	$(CC) $(PYFLAGS) main.o -o program2
+	$(CC) $(PYFLAGS2) main.o -o program2
 
 main.o: main.cpp
-	$(CC) $(PYFLAGS) -c main.cpp
-
-#KDTree.o: kdtree/KDTree.hpp kdtree/KDTree.cpp
-#	$(CC) $(CFLAGS) -c kdtree/KDTree.cpp
-#
-#ParallelKDTree.o: parallel_kdtree/ParallelKDTree.hpp parallel_kdtree/ParallelKDTree.cpp
-#	$(CC) $(CFLAGS) -c parallel_kdtree/ParallelKDTree.cpp
-#
-#KNNQueue.o: kdtree/KNNQueue.hpp kdtree/KNNQueue.cpp
-#	$(CC) $(CFLAGS) -c kdtree/KNNQueue.cpp
+	$(CC) $(PYFLAGS2) -c main.cpp
 
 run: all
-	./program2 $(NUM_THREADS) data/training_10000000_5.dat data/query_100000_5_10.dat results.out
+	./program2 $(NUM_THREADS) $(TRAINING_FILE) $(QUERY_FILE) results.out
 
-small_test: all
-	./program2 $(NUM_THREADS) data/training_1000_3.dat data/query_18211359.dat small_results.out
-
-big_test: all
-	./program2 $(NUM_THREADS) data/training_16777216_5.dat data/query_1_5_10.dat big_results.out
-	#./program2 8 data/training_16777216_5.dat data/query_1_5_10.dat big_results_multithreaded.out
-	#python3 scripts/solver.py data/training_16777216_5.dat data/query_1_5_10.dat sklearn_big_results.out
+data:
+	python3 initialize_data.py
 
 memcheck: all
-	valgrind $(VFLAGS) ./program2 $(NUM_THREADS) data/training_1000_3.dat data/query_18211359.dat results_memcheck.out
+	valgrind $(VFLAGS) ./program2 $(NUM_THREADS) $(TRAINING_FILE) $(QUERY_FILE) results_memcheck.out
+
+cython:
+	python3 setup.py build_ext --inplace
 
 clean:
-	rm *.o program2 results.out big_results.out sklearn_big_results.out
-
-performance_test: all
-	for i in 1 2 3 4 5 6 7 8 9 10; do \
-  		./program2 1 data/training_10000000_5.dat data/query_100000_5_10.dat results2.out; \
-	done
+	rm *.o program2
+	rm -r build/
+	rm hpyc.cpp
+	rm hpyc.cpython-38-x86_64-linux-gnu.so
