@@ -43,6 +43,24 @@ static int KDTree_init(KDTree* self, PyObject* args, PyObject* kwds) {
 
     // TODO create tree
     // TODO initialize num_dimensions and num_points
+    // TODO make this support various data types
+    PyObject* array_obj;
+
+#if NPY_API_VERSION >= 13
+    array_obj = PyArray_FROM_OTF(np_array_in, NPY_FLOAT32, NPY_ARRAY_INOUT_ARRAY2);
+#else
+    array_obj = PyArray_FROM_OTF(np_array_in, NPY_FLOAT32, NPY_ARRAY_INOUT_ARRAY);
+#endif
+
+    PyArrayObject* np_array_obj = reinterpret_cast<PyArrayObject*>(array_obj);
+    npy_float32* data = reinterpret_cast<npy_float32*>(np_array_obj->data);
+
+    // TODO Dimensionality check
+    npy_intp* shape = PyArray_SHAPE(np_array_obj);
+    self->num_dimensions = shape[0];
+    self->num_points = shape[1];
+
+    self->tree = new KDTree<float>(data, self->num_points, self->num_dimensions);
 
     return 0;
 }
@@ -51,7 +69,9 @@ static int KDTree_init(KDTree* self, PyObject* args, PyObject* kwds) {
 static void KDTree_dealloc(KDTree* self) {
     Py_XDECREF(self->np_array);
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
-    // TODO delete tree
+
+
+    delete self->tree;
 }
 
 
