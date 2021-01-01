@@ -75,8 +75,39 @@ static void KDTree_dealloc(KDTree* self) {
 }
 
 
-static PyObject* KDTree_nearest_neighbors(KDTree* self, PyObject* num_neighbors) {
+static PyObject* KDTree_nearest_neighbors(KDTree* self, PyObject* args) {
+    // TODO sanity check for num neighbors
+    PyObject* query_point_in;
+    std::size_t num_neighbors_in;
+
+    bool args_successfully_parsed = PyArg_ParseTuple(
+        args,
+        "Oi",
+        &query_point_in,
+        &num_neighbors_in
+    );
+
     // TODO
+    npy_intp dim[] = {num_neighbors_in};
+    PyObject* indices_obj = PyArray_SimpleNew(1, dim, NPY_UINT64);
+    PyObject* distances_obj = PyArray_SimpleNew(1, dim, NPY_FLOAT32);
+
+
+    PyArrayObject* query_point_obj = reinterpret_cast<PyArrayObject*>(query_point_in);
+
+    npy_float32* query_point = reinterpret_cast<npy_float32*>(query_point_obj->data);
+
+    std::size_t* indices = reinterpret_cast<PyArrayObject*>(indices_obj)->data;
+    float* distances = reinterpret_cast<PyArrayObject*>(distances_obj)->data;
+
+    self->tree->nearestNeighborsSearch(
+        query_point,
+        num_neighbors_in,
+        indices,
+        distances
+    );
+
+    return Py_BuildValue("OO", indices_obj, distances_obj);
 }
 
 
