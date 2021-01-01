@@ -1,9 +1,9 @@
-from distutils.core import setup, Extension
-from Cython.Build import cythonize
-import distutils.sysconfig
-from distutils.sysconfig import get_config_vars as default_get_config_vars
-
-CFLAGS = ["-Wall", "-Wextra", "-pedantic", "-std=c++17", "-O3", "-march=native"]
+# from distutils.core import setup, Extension
+# from Cython.Build import cythonize
+# import distutils.sysconfig
+# from distutils.sysconfig import get_config_vars as default_get_config_vars
+#
+# CFLAGS = ["-Wall", "-Wextra", "-pedantic", "-std=c++17", "-O3", "-march=native"]
 
 # default_arguments = default_get_config_vars()
 #
@@ -25,20 +25,34 @@ CFLAGS = ["-Wall", "-Wextra", "-pedantic", "-std=c++17", "-O3", "-march=native"]
 # distutils.sysconfig.get_config_vars = cc_flag_interceptor
 
 
-setup(
-    ext_modules=cythonize(
-        Extension(
-            "hpyc",
-            sources=["hpyc.pyx"],
-            extra_compile_args=CFLAGS,
-            extra_link_args=CFLAGS,
-            language="c++",
-        ),
-        compiler_directives={
-            "language_level": "3", 
-            "boundscheck": False, 
-            "wraparound": False, 
-            "initializedcheck": False
-        }
-    )
-)
+# setup(
+#     ext_modules=cythonize(
+#         Extension(
+#             "hpyc",
+#             sources=["hpyc.pyx"],
+#             extra_compile_args=CFLAGS,
+#             extra_link_args=CFLAGS,
+#             language="c++",
+#         ),
+#         compiler_directives={
+#             "language_level": "3",
+#             "boundscheck": False,
+#             "wraparound": False,
+#             "initializedcheck": False
+#         }
+#     )
+# )
+
+import numpy
+from numpy.distutils.misc_util import Configuration, get_info
+from numpy.distutils.core import setup
+
+
+def configuration(parent_package="", top_path=None):
+    config = Configuration("", parent_package, top_path)
+    config.add_extension("hpyc", ["hpyc.cpp"], extra_info=get_info("npymath"))
+
+    return config
+
+
+setup(configuration=configuration)
