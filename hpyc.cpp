@@ -9,6 +9,9 @@
 #include "src/kdtree/KDTree.hpp"
 
 
+static PyObject* HPyCError;
+
+
 typedef struct {
     PyObject_HEAD
     PyObject* np_array;
@@ -111,6 +114,10 @@ static inline PyModuleDef hpyc_module_definition() {
 }
 
 
+static const PyModuleDef module_def = hpyc_module_definition();
+static const PyTypeObject kdtree_type_definition = KDTree_type_definition();
+
+
 PyMODINIT_FUNC PyInit_hpyc() {
     Py_Initialize();
     import_array();
@@ -119,9 +126,31 @@ PyMODINIT_FUNC PyInit_hpyc() {
         return nullptr;
     }
 
-    PyObject* m = PyModule_Create(&module);
+    PyObject* module = PyModule_Create(&module_def);
 
-    if (m == nullptr) {
+    if (module == nullptr) {
         return nullptr;
     }
+
+    HPyCError = PyErr_NewException("hpyc.HPyCError", nullptr, nullptr);
+    Py_XINCREF(HPyCError);
+
+    if (PyMOdule_AddObject(module, "Error creating module", HPyCError) < 0) {
+        Py_XDECREF(HPyCError);
+        Py_CLEAR(HPyCError);
+        Py_DECREF(module);
+
+        return nullptr;
+    }
+
+    Py_INCREF(&kdtree_type_definition);
+
+    if (PyModule_AddObject(module, "KDTree", reinterpret_cast<PyObject*>(&kdtree_type_definition)) < 0) {
+        Py_DECREF(&kdtree_type_definition);
+        Py_DECREF(module);
+
+        return nullptr;
+    }
+
+    return module;
 }
