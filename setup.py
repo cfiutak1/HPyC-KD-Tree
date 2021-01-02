@@ -3,7 +3,7 @@
 # import distutils.sysconfig
 # from distutils.sysconfig import get_config_vars as default_get_config_vars
 #
-# CFLAGS = ["-Wall", "-Wextra", "-pedantic", "-std=c++17", "-O3", "-march=native"]
+
 
 # default_arguments = default_get_config_vars()
 #
@@ -47,10 +47,16 @@ import numpy
 from numpy.distutils.misc_util import Configuration, get_info
 from numpy.distutils.core import setup
 
+CFLAGS = ["-Wall", "-Wextra", "-pedantic", "-std=c++17", "-O3", "-march=native"]
 
 def configuration(parent_package="", top_path=None):
     config = Configuration("", parent_package, top_path)
-    config.add_extension("hpyc", ["hpyc.cpp"], extra_info=get_info("npymath"))
+    config.add_extension(
+        "hpyc",
+        ["hpyc.cpp"],
+        extra_info=get_info("npymath"),
+        extra_compile_args=CFLAGS
+    )
 
     return config
 
