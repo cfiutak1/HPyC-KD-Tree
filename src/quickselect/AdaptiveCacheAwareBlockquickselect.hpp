@@ -1,6 +1,5 @@
 #include <cmath>
 #include <algorithm>
-#include <cstdio>
 #include <cstdint>
 
 #pragma once
