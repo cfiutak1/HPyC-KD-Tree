@@ -1,5 +1,5 @@
 //#include "../kdtree/Neighbor.hpp"
-#include "../kdtree/KNNQueue.hpp"
+#include "../kdtree/KDTree.hpp"
 #include "../filedata/FileData.hpp"
 #include "../filedata/TrainingFileData.hpp"
 #include "../filedata/QueryFileData.hpp"
@@ -58,15 +58,19 @@ public:
         this->results_file.write(reinterpret_cast<const char*>(&(this->query_file_data->num_neighbors)), 8);
     }
 
+    template <typename ItemT>
+    void writeQueryResults(hpyc::KDTree<ItemT>& tree, std::size_t* indices) {
+        ItemT* point_to_write = new ItemT[this->query_file_data->num_dimensions];
 
-//    void writeQueryResults(KNNQueue& nearest_neighbors) {
-//        std::sort(nearest_neighbors.array, nearest_neighbors.array + this->query_file_data->num_neighbors, std::greater<>());
-//
-//        for (std::size_t i = this->query_file_data->num_neighbors; i > 0; --i) {
-//            for (std::size_t j = 0; j < this->query_file_data->num_dimensions; ++j) {
-//                this->results_file.write(reinterpret_cast<const char*>(&(nearest_neighbors.array[i - 1].point[j])), 4);
-//            }
-//
-//        }
-//    }
+        for (std::size_t i = 0; i < this->query_file_data->num_neighbors; i++) {
+            tree.readPointAt(point_to_write, indices[i]);
+
+            this->results_file.write(
+                reinterpret_cast<char*>(&(point_to_write)),
+                sizeof(ItemT) * this->query_file_data->num_dimensions
+            );
+        }
+
+        delete[] point_to_write;
+    }
 };
