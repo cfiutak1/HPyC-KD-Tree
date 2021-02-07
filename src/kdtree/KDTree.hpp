@@ -52,13 +52,7 @@ public:
             this->nodes[i] = np_array_in + (i * num_points_in);
         }
 
-        auto build_start = std::chrono::steady_clock::now();
-
         this->buildTree(0, num_points_in, 0);
-
-        auto build_end = std::chrono::steady_clock::now();
-        std::chrono::duration<double> build_diff = (build_end - build_start);
-        printf("build %f\n", build_diff.count());
     }
 
 
