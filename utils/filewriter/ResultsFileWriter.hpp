@@ -1,5 +1,4 @@
-//#include "../kdtree/Neighbor.hpp"
-#include "../kdtree/KDTree.hpp"
+#include "../../src/kdtree/KDTree.hpp"
 #include "../filedata/FileData.hpp"
 #include "../filedata/TrainingFileData.hpp"
 #include "../filedata/QueryFileData.hpp"

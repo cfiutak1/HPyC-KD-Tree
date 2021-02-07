@@ -1,8 +1,8 @@
-#include "src/filedata/TrainingFileData.hpp"
-#include "src/filedata/QueryFileData.hpp"
-#include "src/fileprocessor/QueryFileProcessor.hpp"
-#include "src/fileprocessor/TrainingFileProcessor.hpp"
-#include "src/filewriter/ResultsFileWriter.hpp"
+#include "utils/filedata/TrainingFileData.hpp"
+#include "utils/filedata/QueryFileData.hpp"
+#include "utils/fileprocessor/QueryFileProcessor.hpp"
+#include "utils/fileprocessor/TrainingFileProcessor.hpp"
+#include "utils/filewriter/ResultsFileWriter.hpp"
 #include "src/kdtree/KDTree.hpp"
 
 #include <cstdlib>
