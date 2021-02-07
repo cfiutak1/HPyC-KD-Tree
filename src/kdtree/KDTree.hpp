@@ -1,10 +1,9 @@
 #include "KNNQueue.hpp"
-#include "../filedata/TrainingFileData.hpp"
+#include "../../utils/filedata/TrainingFileData.hpp"
 #include "../quickselect/AdaptiveCacheAwareBlockquickselect.hpp"
 
 #include <cstdint>
 #include <cstring>
-#include <chrono>
 
 #pragma once
 
@@ -52,13 +51,7 @@ public:
             this->nodes[i] = np_array_in + (i * num_points_in);
         }
 
-        auto build_start = std::chrono::steady_clock::now();
-
         this->buildTree(0, num_points_in, 0);
-
-        auto build_end = std::chrono::steady_clock::now();
-        std::chrono::duration<double> build_diff = (build_end - build_start);
-        printf("build %f\n", build_diff.count());
     }
 
 
