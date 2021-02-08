@@ -60,7 +60,11 @@ float runConstructionBenchmarks(std::size_t num_points, std::size_t num_dimensio
 
 int main() {
     srand(42);
-    float time = runConstructionBenchmarks<float, std::rand>(1 << 15, 7, 1000);
 
-    printf("%f\n", time);
+    for (int i = 15; i < 25; ++i) {
+        float timing = runConstructionBenchmarks<float, std::rand>(1 << i, 7, 1000);
+        printf("2^%d,%.8f\n", i, timing);
+    }
+
+    printf("%f\n", timing);
 }
