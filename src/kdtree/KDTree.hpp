@@ -65,8 +65,8 @@ public:
 
 
     ~KDTree() {
-        delete[] this->nodes;
-        delete[] this->np_array;
+//        delete[] this->nodes;
+//        delete[] this->np_array;
     }
 
     inline void readPointAt(ItemT* point, const std::size_t index) const {
