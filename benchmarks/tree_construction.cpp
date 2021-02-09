@@ -29,7 +29,6 @@ float runConstructionBenchmarks(std::size_t num_points, std::size_t num_dimensio
     float* timings = new float[runs];
 
     for (std::size_t i = 0; i < runs; ++i) {
-//        printf("%s:%d %lu\n", __FILE__, __LINE__, i);
         ItemT** data = generateMatrix<ItemT, GeneratorT>(num_dimensions, num_points);
 
         TIMING_START()
@@ -43,8 +42,6 @@ float runConstructionBenchmarks(std::size_t num_points, std::size_t num_dimensio
         for (std::size_t j = 0; j < num_dimensions; j++) {
             delete[] data[j];
         }
-
-//        printf("%s:%d\n", __FILE__, __LINE__);
 
         delete[] data;
     }
@@ -61,10 +58,24 @@ float runConstructionBenchmarks(std::size_t num_points, std::size_t num_dimensio
 int main() {
     srand(42);
 
-    for (int i = 15; i < 25; ++i) {
-        float timing = runConstructionBenchmarks<float, std::rand>(1 << i, 7, 1000);
-        printf("2^%d,%.8f\n", i, timing);
+    FILE* fptr = fopen("construction_benchmarks_7d.csv", "w");
+    int num_runs = 100;
+
+    for (int i = 1000; i <= 100000; i += 1000) {
+        float timing = runConstructionBenchmarks<float, std::rand>(i, 7, num_runs);
+        fprintf(fptr,"%d,%.8f\n", i, timing);
     }
 
-    printf("%f\n", timing);
+    for (int i = 100000; i <= 1000000; i += 1000) {
+        float timing = runConstructionBenchmarks<float, std::rand>(i, 7, num_runs);
+        fprintf(fptr,"%d,%.8f\n", i, timing);
+    }
+
+    for (int i = 1000000; i <= 100000000; i += 1000000) {
+        float timing = runConstructionBenchmarks<float, std::rand>(i, 7, num_runs);
+        fprintf(fptr,"%d,%.8f\n", i, timing);
+    }
+
+
+    fclose(fptr);
 }
